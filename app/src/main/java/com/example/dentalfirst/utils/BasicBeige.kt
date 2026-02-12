@@ -32,7 +32,7 @@ fun BasicBeige(
         Row(
             modifier = Modifier.padding(vertical = 9.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Text(
                 text = text,

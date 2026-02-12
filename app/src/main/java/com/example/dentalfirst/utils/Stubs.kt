@@ -7,7 +7,7 @@ import com.example.dentalfirst.R
 
 val customerStub = Customer(
     "Иван Зубоделов",
-    "+7 (900) 500-40-30)",
+    "+7 (900) 500-40-30",
 
     R.drawable.ivan_photo
 )
