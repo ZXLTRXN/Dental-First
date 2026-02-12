@@ -2,8 +2,10 @@ package com.example.dentalfirst
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @Stable
 data class OrderState(
@@ -11,15 +13,18 @@ data class OrderState(
     val id: Long,
     val customer: Customer
 ) {
-    val totalPrice: MutableState<Int> = mutableIntStateOf(0)
-    val appliedPromo: MutableState<Promo> = mutableStateOf(Promo.None)
-    val bonus: MutableState<Bonus> = mutableStateOf(Bonus(0f))
+    var _totalPrice by mutableIntStateOf(0)
+    val totalPrice: Int get() = _totalPrice
+    var _appliedPromo by mutableStateOf(Promo.None)
+    val appliedPromo get() = _appliedPromo
+    var _bonus by mutableStateOf(Bonus(0f))
+    val bonus get() = _bonus
 
-    val selectedType: MutableState<OrderType>
-    = mutableStateOf(OrderType.DELIVERY)
-    val deliveryState: MutableState<FulfillmentAddress>
+    val _selectedType: MutableState<FulfillmentType>
+    = mutableStateOf(FulfillmentType.DELIVERY)
+    val _deliveryState: MutableState<FulfillmentAddress>
     = mutableStateOf(FulfillmentAddress())
-    val pickupState: MutableState<FulfillmentAddress>
+    val _pickupState: MutableState<FulfillmentAddress>
     = mutableStateOf(FulfillmentAddress())
 }
 
@@ -43,7 +48,7 @@ value class Bonus(
     val amount: Float
 )
 
-enum class OrderType {
+enum class FulfillmentType {
     DELIVERY,
     PICKUP
 }
