@@ -11,13 +11,16 @@ import androidx.compose.runtime.setValue
 data class OrderState(
     val date: String,
     val id: Long,
-    val customer: Customer
+    val customer: Customer,
+
 ) {
+    var _items by mutableIntStateOf(0)
+    val items: Int get() = _items
     var _totalPrice by mutableIntStateOf(0)
     val totalPrice: Int get() = _totalPrice
-    var _appliedPromo by mutableStateOf(Promo.None)
+    var _appliedPromo by mutableStateOf(Promo.Example)
     val appliedPromo get() = _appliedPromo
-    var _bonus by mutableStateOf(Bonus(0f))
+    var _bonus by mutableStateOf(Bonus(325))
     val bonus get() = _bonus
 
     val _selectedType: MutableState<FulfillmentType>
@@ -40,12 +43,13 @@ data class Promo(
 ) {
     companion object {
         val None = Promo("", 0f)
+        val Example = Promo("DFSALE", 0f)
     }
 }
 
 @JvmInline
 value class Bonus(
-    val amount: Float
+    val amount: Int
 )
 
 enum class FulfillmentType {
