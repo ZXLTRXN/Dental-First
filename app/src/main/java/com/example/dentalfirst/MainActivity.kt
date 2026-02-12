@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -20,8 +21,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             DentalFirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    val viewModel by viewModels<OrderViewModel>()
+                    OrderScreen(
+                        orderState = viewModel.orderState,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -31,17 +33,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun OrderScreen(
+    orderState: OrderState,
+    modifier: Modifier = Modifier
+) {
+
 }
+
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun OrderScreenPreview() {
     DentalFirstTheme {
-        Greeting("Android")
+        OrderScreen()
     }
 }
