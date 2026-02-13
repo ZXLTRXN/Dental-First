@@ -39,7 +39,7 @@ class OrderViewModel: ViewModel() {
     }
 
     private fun selectFulfillmentType(type: FulfillmentType) {
-        _orderState._selectedType = type
+        _orderState._selectedFulfillmentType = type
     }
 
 

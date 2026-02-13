@@ -1,5 +1,6 @@
 package com.example.dentalfirst
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,6 +27,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +46,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dentalfirst.components.BasicBeige
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
+import com.example.dentalfirst.components.IndividualPaymentTypeSelector
+import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
-import com.example.dentalfirst.components.SecondaryButton
-import com.example.dentalfirst.components.TertiaryButton
+import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
@@ -68,9 +77,11 @@ fun OrderScreen(
     onFulfillmentSelected: (FulfillmentType) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
@@ -92,25 +103,33 @@ fun OrderScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         FulfillmentTypeTabSelector(
-            selectedType = orderState.selectedType,
+            selectedType = orderState.selectedFulfillmentType,
             onTabSelected = onFulfillmentSelected,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (orderState.selectedType == FulfillmentType.DELIVERY) {
-            DeliveryDetails(
-                onMapClick = {}, // fixme
-                onManualClick = {}, // fixme
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
-        } else {
-            PickupDetails(
-                onMapClick = {},
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
+        AnimatedContent(targetState = orderState.selectedFulfillmentType) { targetType ->
+            if (targetType == FulfillmentType.DELIVERY) {
+                DeliveryDetails(
+                    onMapClick = {}, // fixme
+                    onManualClick = {}, // fixme
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            } else {
+                PickupDetails(
+                    onMapClick = {}, // fixme
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
         }
-        
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PaymentDetails(
+            orderState,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+
         Spacer(modifier = Modifier.height(12.dp))
         TotalDetails(
             price = orderState.totalPrice,
@@ -354,22 +373,26 @@ fun TotalDetails(
 @Composable
 fun MapButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    buttonContent: @Composable RowScope.() -> Unit
 ) {
     Surface(
         onClick = {},
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
-            .height(126.dp)
             .fillMaxWidth(),
     ) {
         Box(
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.map_image),
                 contentDescription = null,
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             Button(
                 onClick = onClick,
@@ -384,24 +407,11 @@ fun MapButton(
                 )
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Указать адрес на карте",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.add_circle_ic),
-                        contentDescription = null
-                    )
-                }
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = buttonContent
+                )
             }
-
         }
-
     }
 }
 
@@ -421,21 +431,39 @@ fun DeliveryDetails(
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(Modifier.height(12.dp))
-            MapButton(onMapClick)
+            MapButton(
+                onMapClick,
+                modifier = Modifier.height(126.dp)
+            ) {
+                Text(
+                    text = "Указать адрес на карте",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.add_circle_ic),
+                    contentDescription = null
+                )
+            }
             Spacer(Modifier.height(12.dp))
             Button(
                 onClick = onManualClick,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
-                contentPadding = PaddingValues(16.dp
+                contentPadding = PaddingValues(
+                    16.dp
                 ),
                 colors = ButtonDefaults.buttonColors().copy(
                     contentColor = MaterialTheme.colorScheme.onTertiary,
                     containerColor = MaterialTheme.colorScheme.tertiary,
                 )
             ) {
-                Text(text = "Указать вручную", style = MaterialTheme.typography.titleSmall.copy
-                    (fontSize = 17.sp)
+                Text(
+                    text = "Указать вручную",
+                    style = MaterialTheme.typography.titleSmall.copy
+                        (fontSize = 17.sp)
                 )
             }
         }
@@ -451,15 +479,98 @@ fun PickupDetails( // fixme
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium
     ) {
-        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Адрес офиса Dental First",
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(Modifier.height(12.dp))
+            MapButton(
+                onMapClick,
+                modifier = Modifier.height(126.dp)
+            ) {
+                Text(
+                    text = "Показать на карте",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.square_arrow_right_ic),
+                    contentDescription = null
+                )
+            }
         }
     }
 }
 
 @Composable
-fun PaymentDetails(modifier: Modifier = Modifier) {
-    
+fun PaymentDetails(
+    orderState: OrderState,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Параметры оплаты",
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(Modifier.height(12.dp))
+
+            var selectedPaymentType by remember { mutableStateOf(PaymentType.INDIVIDUAL) } // fixme
+            PaymentTypeSelector(
+                selectedType = selectedPaymentType,
+                onSelect = { selectedPaymentType = it }
+            )
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = "Способы оплаты",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(12.dp))
+
+            AnimatedContent(selectedPaymentType) { targetType ->
+                when {
+                    targetType == PaymentType.INDIVIDUAL -> {
+                        var selectedIndividualPaymentType by remember { mutableStateOf(IndividualPaymentType.CARD) } // fixme
+                        IndividualPaymentTypeSelector(
+                            selectedType = selectedIndividualPaymentType,
+                            onSelect = { selectedIndividualPaymentType = it }
+                        )
+                    }
+
+                    targetType == PaymentType.LEGAL -> {
+
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text("После оформления заказа ожидайте ответа от менеджера." +
+                    " После того, как заказ будет согласован, вам нужно будет уточнить реквизиты" +
+                    " для перевода оплаты. После того, как заказ будет оплачен, ожидайте чек" +
+                    " из Яндекс ОФД на вашу электронную почту. Если вам нужен оригинал чека, " +
+                    "предупредите об этом заранее.", style = MaterialTheme.typography.bodySmall,
+                color = DarkGrey
+            )
+
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Composable
+fun ItemPreview() {
+    DentalFirstTheme {
+        PaymentDetails(
+            orderState = orderStateStub,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+    }
 }
 
 @Preview(showBackground = true)

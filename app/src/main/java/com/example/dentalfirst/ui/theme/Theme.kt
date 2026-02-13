@@ -17,12 +17,12 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = mainBlue,
+    primary = MainBlue,
     onPrimary = Color.White,
-    secondary = secondaryBlue,
+    secondary = SecondaryBlue,
     onSecondary = Color.White,
-    tertiary = tertiaryBlue,
-    onTertiary = secondaryBlue,
+    tertiary = TertiaryBlue,
+    onTertiary = SecondaryBlue,
 
     background = MiddleGrey, // fixme SuperLightGrey
     onBackground = Color.Black,

@@ -3,4 +3,11 @@
 
     <string name="delivery">Доставка</string>
     <string name="pickup">Самовывоз</string>
+
+    <string name="individual_entity_payment">Оплата для физ. лиц</string>
+    <string name="legal_entity_payment">Оплата для юр. лиц</string>
+
+    <string name="individual_card_payment">Картой при получении</string>
+    <string name="individual_cash_payment">Наличными при получении</string>
+
 </resources>

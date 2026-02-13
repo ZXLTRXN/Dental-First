@@ -42,10 +42,11 @@ fun FulfillmentTypeTabSelector(
     onTabSelected: (FulfillmentType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabs = FulfillmentType.entries
+    val tabs = remember { FulfillmentType.entries }
     val selectedIndex = selectedType.ordinal
 
-
+    // Анимация смещения.
+    // Мы НЕ вызываем .value здесь, чтобы не триггерить рекомпозицию всего контейнера
     val indicatorOffset by animateFloatAsState(
         targetValue = selectedIndex.toFloat(),
         animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -60,23 +61,13 @@ fun FulfillmentTypeTabSelector(
             .background(TooLightGrey)
             .padding(4.dp)
     ) {
-        // Рисуем подложку, которая занимает 1/N ширины
-        // Мы используем layout-логику самого Row для позиционирования
-//        Row(modifier = Modifier.fillMaxSize()) {
-//            tabs.forEachIndexed { index, _ ->
-//                Spacer(modifier = Modifier.weight(1f))
-//            }
-//        }
-
-        // Индикатор (Белый фон)
-        // Мы используем Modifier.fillMaxWidth(1f / tabs.size)
-        // и смещаем его через fraction (долю) от общей ширины
+        // Бегунок (Индикатор)
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth(1f / tabs.size)
                 .graphicsLayer {
-                    // Смещаем на ширину одного таба, умноженную на прогресс анимации
+                    // Читаем indicatorOffset только в фазе отрисовки (внутри лямбды)
                     translationX = indicatorOffset * size.width
                 }
                 .background(
@@ -85,36 +76,48 @@ fun FulfillmentTypeTabSelector(
                 )
         )
 
-        // Текстовый слой
         Row(modifier = Modifier.fillMaxSize()) {
-            tabs.forEachIndexed { index, type ->
-                val isSelected = selectedIndex == index
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { onTabSelected(type) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(type.stringRes),
-                        color = animateColorAsState(if (isSelected) Color.Black else MiddleGrey).value,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight
-                                .Light
-                        ),
-                        modifier = Modifier.padding(
-                            horizontal = 4.dp,
-                            vertical = 8.dp
-                        )
-                    )
-                }
+            tabs.forEach { type ->
+                TabItem(
+                    text = stringResource(type.stringRes),
+                    isSelected = selectedType == type,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onTabSelected(type) }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun TabItem(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) Color.Black else MiddleGrey,
+        label = "TabColor"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Light
+            )
+        )
     }
 }
 

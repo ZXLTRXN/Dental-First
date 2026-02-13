@@ -11,7 +11,6 @@ data class OrderState(
     val date: String,
     val id: Long,
     val customer: Customer,
-
     ) {
     var _items by mutableIntStateOf(0)
     val items: Int get() = _items
@@ -22,14 +21,22 @@ data class OrderState(
     var _bonus by mutableStateOf(Bonus(0))
     val bonus get() = _bonus
 
-    var _selectedType by mutableStateOf(FulfillmentType.DELIVERY)
-    val selectedType get() = _selectedType
+    var _selectedFulfillmentType by mutableStateOf(FulfillmentType.DELIVERY)
+    val selectedFulfillmentType get() = _selectedFulfillmentType
     var _deliveryState by mutableStateOf(FulfillmentAddress())
     val deliveryState get() = _deliveryState
     var _pickupState by mutableStateOf(FulfillmentAddress())
     val pickupState get() = _pickupState
     var _deliveryPrice by mutableIntStateOf(0)
     val deliveryPrice: Int get() = _deliveryPrice
+
+    var _selectedPaymentType by mutableStateOf(PaymentType.INDIVIDUAL)
+    val selectedPaymentType get() = _selectedPaymentType
+
+    var _selectedIndividualPaymentType by mutableStateOf(IndividualPaymentType.CARD)
+    val selectedIndividualPaymentType get() = _selectedIndividualPaymentType
+
+
 }
 
 data class Customer(
@@ -80,4 +87,14 @@ data class FulfillmentAddress(
     companion object {
         val NotSelected = FulfillmentAddress()
     }
+}
+
+enum class PaymentType(val stringRes: Int) {
+    INDIVIDUAL(R.string.individual_entity_payment),
+    LEGAL(R.string.legal_entity_payment)
+}
+
+enum class IndividualPaymentType(val stringRes: Int, val iconRes: Int) {
+    CARD(R.string.individual_card_payment, R.drawable.card_ic),
+    CASH(R.string.individual_cash_payment, R.drawable.wallet_money_ic)
 }
