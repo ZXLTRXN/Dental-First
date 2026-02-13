@@ -24,7 +24,7 @@ private val LightColorScheme = lightColorScheme(
     tertiary = tertiaryBlue,
     onTertiary = secondaryBlue,
 
-    background = SuperLightGrey,
+    background = MiddleGrey, // fixme SuperLightGrey
     onBackground = Color.Black,
     surface = Color.White,
     onSurface = Color.Black,
@@ -32,6 +32,7 @@ private val LightColorScheme = lightColorScheme(
 
 private val MyShapes = Shapes(
     extraLarge = RoundedCornerShape(100.dp),
+    large = RoundedCornerShape(20.dp),
     medium = RoundedCornerShape(12.dp),
     small = RoundedCornerShape(8.dp)
 )

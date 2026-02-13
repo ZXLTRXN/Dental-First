@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,10 +34,13 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dentalfirst.components.BasicBeige
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.PrimaryButton
+import com.example.dentalfirst.components.SecondaryButton
+import com.example.dentalfirst.components.TertiaryButton
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
@@ -89,7 +96,21 @@ fun OrderScreen(
             onTabSelected = onFulfillmentSelected,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
+        Spacer(modifier = Modifier.height(12.dp))
 
+        if (orderState.selectedType == FulfillmentType.DELIVERY) {
+            DeliveryDetails(
+                onMapClick = {}, // fixme
+                onManualClick = {}, // fixme
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        } else {
+            PickupDetails(
+                onMapClick = {},
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        }
+        
         Spacer(modifier = Modifier.height(12.dp))
         TotalDetails(
             price = orderState.totalPrice,
@@ -118,7 +139,7 @@ fun OrderHeader(
                 .padding(7.dp)
                 .size(33.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+            color = Color.Black.copy(alpha = 0.2f),
             onClick = onBackClick
         ) {
             Box(
@@ -127,7 +148,7 @@ fun OrderHeader(
                 Icon(
                     ImageVector.vectorResource(R.drawable.left_arrow_ic),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = Color.Black
                 )
             }
         }
@@ -137,14 +158,6 @@ fun OrderHeader(
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//private fun OrderHeaderPreview() {
-//    DentalFirstTheme {
-//        OrderHeader({})
-//    }
-//}
 
 @Composable
 fun OrderDetails(
@@ -336,6 +349,117 @@ fun TotalDetails(
             )
         }
     }
+}
+
+@Composable
+fun MapButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = {},
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier
+            .height(126.dp)
+            .fillMaxWidth(),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.map_image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Button(
+                onClick = onClick,
+                shape = MaterialTheme.shapes.extraLarge,
+                contentPadding = PaddingValues(
+                    vertical = 8.dp,
+                    horizontal = 16.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Указать адрес на карте",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.add_circle_ic),
+                        contentDescription = null
+                    )
+                }
+            }
+
+        }
+
+    }
+}
+
+@Composable
+fun DeliveryDetails(
+    onMapClick: () -> Unit,
+    onManualClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Параметры доставки",
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(Modifier.height(12.dp))
+            MapButton(onMapClick)
+            Spacer(Modifier.height(12.dp))
+            Button(
+                onClick = onManualClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                contentPadding = PaddingValues(16.dp
+                ),
+                colors = ButtonDefaults.buttonColors().copy(
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                )
+            ) {
+                Text(text = "Указать вручную", style = MaterialTheme.typography.titleSmall.copy
+                    (fontSize = 17.sp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PickupDetails( // fixme
+    onMapClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+
+        }
+    }
+}
+
+@Composable
+fun PaymentDetails(modifier: Modifier = Modifier) {
+    
 }
 
 @Preview(showBackground = true)

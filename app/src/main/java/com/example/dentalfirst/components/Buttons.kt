@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,39 +21,22 @@ import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.TooLightGrey
 
 @Composable
-fun BasicFilledButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    content: @Composable RowScope.() -> Unit,
-
-    ) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        content = content,
-        contentPadding = PaddingValues(
-            vertical = 20.dp,
-            horizontal = 16.dp
-        ),
-        shape = MaterialTheme.shapes.medium,
-        colors = colors,
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
-@Composable
 fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = MaterialTheme.shapes.medium,
     content: @Composable RowScope.() -> Unit
 ) {
-    BasicFilledButton(
+    Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        contentPadding = PaddingValues(
+            vertical = 20.dp,
+            horizontal = 16.dp
+        ),
         colors = ButtonDefaults.buttonColors().copy(
             disabledContentColor = LightGrey,
             disabledContainerColor = TooLightGrey
@@ -87,13 +71,20 @@ fun SecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = MaterialTheme.shapes.medium,
     content: @Composable RowScope.() -> Unit
 ) {
-    BasicFilledButton(
+    Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        contentPadding = PaddingValues(
+            vertical = 20.dp,
+            horizontal = 16.dp
+        ),
         colors = ButtonDefaults.buttonColors().copy(
+            contentColor = MaterialTheme.colorScheme.onSecondary,
             containerColor = MaterialTheme.colorScheme.secondary,
             disabledContentColor = LightGrey,
             disabledContainerColor = TooLightGrey
@@ -128,13 +119,20 @@ fun TertiaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = MaterialTheme.shapes.medium,
     content: @Composable RowScope.() -> Unit
 ) {
-    BasicFilledButton(
+    Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        contentPadding = PaddingValues(
+            vertical = 20.dp,
+            horizontal = 16.dp
+        ),
         colors = ButtonDefaults.buttonColors().copy(
+            contentColor = MaterialTheme.colorScheme.onTertiary,
             containerColor = MaterialTheme.colorScheme.tertiary,
             disabledContentColor = LightGrey,
             disabledContainerColor = TooLightGrey
@@ -181,6 +179,11 @@ private fun ButtonsPreview() {
                 Text("Test")
             }
             SecondaryButton(
+                onClick = {},
+            ) {
+                Text("Test")
+            }
+            TertiaryButton(
                 onClick = {},
             ) {
                 Text("Test")
