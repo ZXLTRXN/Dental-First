@@ -31,12 +31,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dentalfirst.components.BasicBeige
+import com.example.dentalfirst.components.FulfillmentTypeTabSelector
+import com.example.dentalfirst.components.PrimaryButton
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
 import com.example.dentalfirst.ui.theme.TooLightGrey
-import com.example.dentalfirst.utils.BasicBeige
-import com.example.dentalfirst.utils.PrimaryButton
 import com.example.dentalfirst.utils.orderStateStub
 import com.example.dentalfirst.utils.toPriceString
 
@@ -47,6 +48,9 @@ fun OrderScreenStateful(
 ) {
     OrderScreen(
         orderState = viewModel.orderState,
+        onFulfillmentSelected = {
+            viewModel.processIntent(OrderIntent.SelectFulfillmentType(it))
+        },
         modifier = modifier
     )
 }
@@ -54,6 +58,7 @@ fun OrderScreenStateful(
 @Composable
 fun OrderScreen(
     orderState: OrderState,
+    onFulfillmentSelected: (FulfillmentType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -79,6 +84,13 @@ fun OrderScreen(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
+        FulfillmentTypeTabSelector(
+            selectedType = orderState.selectedType,
+            onTabSelected = onFulfillmentSelected,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
         TotalDetails(
             price = orderState.totalPrice,
             deliveryPrice = orderState.deliveryPrice,
@@ -86,6 +98,7 @@ fun OrderScreen(
             onClick = {}, // fixme
             modifier = Modifier
         )
+
     }
 
 }
@@ -332,7 +345,8 @@ fun OrderScreenPreview() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             OrderScreen(
                 orderStateStub,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                onFulfillmentSelected = {}
             )
         }
     }

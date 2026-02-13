@@ -59,9 +59,9 @@ value class Bonus(
     val amount: Int
 )
 
-enum class FulfillmentType {
-    DELIVERY,
-    PICKUP
+enum class FulfillmentType(val stringRes: Int) {
+    DELIVERY(R.string.delivery),
+    PICKUP(R.string.pickup)
 }
 
 enum class DestinationType {

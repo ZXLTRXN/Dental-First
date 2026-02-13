@@ -17,6 +17,10 @@ class OrderViewModel: ViewModel() {
 
     private val intent: Channel<OrderIntent> = Channel(Channel.BUFFERED)// fixme
 
+    init {
+        handleIntents()
+    }
+
     fun processIntent(intent: OrderIntent) {
         viewModelScope.launch {
             this@OrderViewModel.intent.send(intent)
@@ -27,21 +31,21 @@ class OrderViewModel: ViewModel() {
         viewModelScope.launch {
             intent.consumeAsFlow().collect { intent ->
                 when (intent) {
-                    is OrderIntent.SelectDelivery -> selectFulfillmentType(FulfillmentType.DELIVERY)
-                    is OrderIntent.SelectPickup -> selectFulfillmentType(FulfillmentType.PICKUP)
+                    is OrderIntent.SelectFulfillmentType-> selectFulfillmentType(intent.type)
+//                    is OrderIntent.SelectPickup -> selectFulfillmentType(FulfillmentType.PICKUP)
                 }
             }
         }
     }
 
     private fun selectFulfillmentType(type: FulfillmentType) {
-
+        _orderState._selectedType = type
     }
 
 
 }
 
 sealed interface OrderIntent {
-    object SelectDelivery: OrderIntent
-    object SelectPickup: OrderIntent
+    data class SelectFulfillmentType(val type: FulfillmentType): OrderIntent
+//    object SelectPickup: OrderIntent
 }

@@ -1,4 +1,4 @@
-package com.example.dentalfirst.utils
+package com.example.dentalfirst.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
