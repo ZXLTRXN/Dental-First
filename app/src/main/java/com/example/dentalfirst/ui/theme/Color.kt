@@ -18,3 +18,7 @@ val LightGrey = Color(0xFF999999)
 val SuperLightGrey = Color(0xFFFAFAFA)
 val TooLightGrey = Color(0xFFE6E6E6)
 
+val mainBlue = Color(0xFF1634F0)
+val secondaryBlue = Color(0xFF007AEB)
+val tertiaryBlue = Color(0xFFE6F2FD)
+

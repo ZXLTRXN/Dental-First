@@ -1,6 +1,5 @@
 package com.example.dentalfirst
 
-import android.service.autofill.UserData
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,21 +27,28 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
+import com.example.dentalfirst.ui.theme.MiddleGrey
 import com.example.dentalfirst.ui.theme.TooLightGrey
 import com.example.dentalfirst.utils.BasicBeige
+import com.example.dentalfirst.utils.PrimaryButton
 import com.example.dentalfirst.utils.orderStateStub
+import com.example.dentalfirst.utils.toPriceString
 
 @Composable
 fun OrderScreenStateful(
     modifier: Modifier = Modifier,
     viewModel: OrderViewModel = viewModel()
 ) {
-    OrderScreen(orderState = viewModel.orderState, modifier = modifier)
+    OrderScreen(
+        orderState = viewModel.orderState,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -54,14 +60,32 @@ fun OrderScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 20.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
-        OrderHeader(onBackClick =  {}) // fixme
+        OrderHeader(
+            onBackClick = {},
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) // fixme
         Spacer(modifier = Modifier.height(12.dp))
-        OrderDetails(orderState)
+        OrderDetails(
+            orderState,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        CustomerDetails(orderState.customer.name, orderState.customer.phone, orderState.customer.photoId)
+        CustomerDetails(
+            name = orderState.customer.name,
+            phone = orderState.customer.phone,
+            image = orderState.customer.photoId,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        TotalDetails(
+            price = orderState.totalPrice,
+            deliveryPrice = orderState.deliveryPrice,
+            isButtonEnabled = true, // fixme
+            onClick = {}, // fixme
+            modifier = Modifier
+        )
     }
 
 }
@@ -84,7 +108,8 @@ fun OrderHeader(
             color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
             onClick = onBackClick
         ) {
-            Box(contentAlignment = Alignment.Center,
+            Box(
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     ImageVector.vectorResource(R.drawable.left_arrow_ic),
@@ -100,24 +125,28 @@ fun OrderHeader(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun OrderHeaderPreview() {
-    DentalFirstTheme {
-        OrderHeader({})
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun OrderHeaderPreview() {
+//    DentalFirstTheme {
+//        OrderHeader({})
+//    }
+//}
 
 @Composable
 fun OrderDetails(
     orderState: OrderState,
     modifier: Modifier = Modifier
 ) {
-    Surface(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
         Column(modifier = Modifier.padding(vertical = 16.dp)) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -128,14 +157,15 @@ fun OrderDetails(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = orderState.date,
+                    Text(
+                        text = orderState.date,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MiddleGrey
                     )
                     Icon(
                         ImageVector.vectorResource(R.drawable.calendar_ic),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondary
+                        tint = MiddleGrey
                     )
                 }
             }
@@ -146,11 +176,12 @@ fun OrderDetails(
                 Text(
                     text = "• ${orderState.items} товаров",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = MiddleGrey
                 )
-                Text(text = "• ${orderState.totalPrice} ₽",
+                Text(
+                    text = "• ${orderState.totalPrice.toPriceString()} ₽",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = MiddleGrey
                 )
             }
             Spacer(
@@ -165,7 +196,8 @@ fun OrderDetails(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Text("Скидка:",
+                Text(
+                    "Скидка:",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.LightGray
                 )
@@ -193,38 +225,104 @@ fun CustomerDetails(
     image: Int,
     modifier: Modifier = Modifier
 ) {
-    Surface(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
-            ) {
+        ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(painter = painterResource(id = image),
+                Image(
+                    painter = painterResource(id = image),
                     contentDescription = null,
                     Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
-                    , contentScale = ContentScale.Crop)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(name, style = MaterialTheme.typography.titleSmall)
-                    Text(phone, style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSecondary)
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Text(
+                        phone,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MiddleGrey
+                    )
                 }
             }
 
-            Text("Заказчик",style = MaterialTheme.typography.bodyLarge,
-                color = LightGrey)
+            Text(
+                "Заказчик",
+                style = MaterialTheme.typography.bodyLarge,
+                color = LightGrey
+            )
         }
     }
+}
 
-
+@Composable
+fun TotalDetails(
+    price: Int,
+    deliveryPrice: Int,
+    isButtonEnabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Стоимость доставки:",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                    color = MiddleGrey
+                )
+                Text(
+                    if (deliveryPrice == 0) "Не рассчитано" else deliveryPrice.toPriceString()
+                            + " ₽",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                    color = LightGrey
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Итого:",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MiddleGrey
+                )
+                Text(
+                    "${price.toPriceString()} ₽",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            PrimaryButton(
+                text = "Оформить заказ",
+                onClick = onClick,
+                enabled = isButtonEnabled
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)

@@ -12,6 +12,7 @@ import com.example.dentalfirst.R
 val Geologica = FontFamily(
     Font(R.font.geologica_regular, FontWeight.Normal),
     Font(R.font.geologica_medium, FontWeight.Medium),
+    Font(R.font.geologica_semibold, FontWeight.SemiBold),
     Font(R.font.geologica_bold, FontWeight.Bold),
     Font(R.font.geologica_light, FontWeight.Light),
 )

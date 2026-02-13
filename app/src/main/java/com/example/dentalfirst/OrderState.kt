@@ -1,6 +1,5 @@
 package com.example.dentalfirst
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,22 +12,24 @@ data class OrderState(
     val id: Long,
     val customer: Customer,
 
-) {
+    ) {
     var _items by mutableIntStateOf(0)
     val items: Int get() = _items
     var _totalPrice by mutableIntStateOf(0)
     val totalPrice: Int get() = _totalPrice
-    var _appliedPromo by mutableStateOf(Promo.Example)
+    var _appliedPromo by mutableStateOf(Promo.None)
     val appliedPromo get() = _appliedPromo
-    var _bonus by mutableStateOf(Bonus(325))
+    var _bonus by mutableStateOf(Bonus(0))
     val bonus get() = _bonus
 
-    val _selectedType: MutableState<FulfillmentType>
-    = mutableStateOf(FulfillmentType.DELIVERY)
-    val _deliveryState: MutableState<FulfillmentAddress>
-    = mutableStateOf(FulfillmentAddress())
-    val _pickupState: MutableState<FulfillmentAddress>
-    = mutableStateOf(FulfillmentAddress())
+    var _selectedType by mutableStateOf(FulfillmentType.DELIVERY)
+    val selectedType get() = _selectedType
+    var _deliveryState by mutableStateOf(FulfillmentAddress())
+    val deliveryState get() = _deliveryState
+    var _pickupState by mutableStateOf(FulfillmentAddress())
+    val pickupState get() = _pickupState
+    var _deliveryPrice by mutableIntStateOf(0)
+    val deliveryPrice: Int get() = _deliveryPrice
 }
 
 data class Customer(
@@ -42,8 +43,14 @@ data class Promo(
     val amount: Float
 ) {
     companion object {
-        val None = Promo("", 0f)
-        val Example = Promo("DFSALE", 0f)
+        val None = Promo(
+            "",
+            0f
+        )
+        val Example = Promo(
+            "DFSALE",
+            0f
+        )
     }
 }
 
