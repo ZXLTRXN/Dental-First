@@ -54,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dentalfirst.components.BasicBeige
 import com.example.dentalfirst.components.BulletText
 import com.example.dentalfirst.components.CourierDateItem
+import com.example.dentalfirst.components.DeliveryBottomSheet
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.IndividualPaymentTypeSelector
 import com.example.dentalfirst.components.PaymentTypeSelector
@@ -87,6 +88,13 @@ fun OrderScreen(
     processIntent: (OrderIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    DeliveryBottomSheet(
+        show = orderState.showDeliveryFeeBottomSheet,
+        addAmountToFree = 35000, // fixme цена
+        onDismiss = {
+            processIntent(OrderIntent.DeliveryFeeDismissedBottomSheet)
+        })
+
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -680,10 +688,7 @@ fun DeliveryDescriptionMsk(
             color = DarkGrey
         )
     }
-
 }
-
-
 
 @Composable
 fun PickupDetails( // fixme

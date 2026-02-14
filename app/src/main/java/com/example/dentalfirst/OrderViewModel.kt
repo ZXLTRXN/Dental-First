@@ -11,12 +11,19 @@ class OrderViewModel : ViewModel() {
     var orderState: OrderState by mutableStateOf(orderStateStub)
         private set
 
+    var bottomSheetShown: Boolean = false
+
     fun processIntent(intent: OrderIntent) {
         when (intent) {
             is OrderIntent.SelectFulfillmentType -> selectFulfillmentType(intent.type)
             is OrderIntent.SelectDeliveryItem -> selectDeliveryItem(intent.item)
             is OrderIntent.SelectCourierDate -> selectCourierDate(intent.date)
+            OrderIntent.DeliveryFeeDismissedBottomSheet -> dismissBottomSheet()
         }
+    }
+
+    private fun dismissBottomSheet() {
+        orderState = orderState.copy(showDeliveryFeeBottomSheet = false)
     }
 
     private fun selectCourierDate(date: String) {
@@ -33,6 +40,10 @@ class OrderViewModel : ViewModel() {
     private fun selectDeliveryItem(item: DeliveryItem) {
         orderState.deliveryItems.select(item) // рекомпозиций избыточных нет
         updateDatesSelectorVisibility()
+        if (item.type != DeliveryType.Courier && !bottomSheetShown) {
+            orderState = orderState.copy(showDeliveryFeeBottomSheet = true)
+            bottomSheetShown = true
+        }
     }
 
     private fun updateDatesSelectorVisibility() {
@@ -51,4 +62,5 @@ sealed interface OrderIntent {
     data class SelectFulfillmentType(val type: FulfillmentType) : OrderIntent
     data class SelectDeliveryItem(val item: DeliveryItem) : OrderIntent
     data class SelectCourierDate(val date: String) : OrderIntent
+    object DeliveryFeeDismissedBottomSheet : OrderIntent
 }

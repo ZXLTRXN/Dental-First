@@ -28,35 +28,10 @@ data class OrderState(
     val courierDates: List<String> = listOf("Вт, 17.02 (завтра)","Ср, 18.02", "Чт, 19.02", "Пт, " +
             "20.02", "Сб, 21.02"),
     val selectedCourierDateIdx: Int = 0,
-    val showDatesSelector: Boolean = false
+    val showDatesSelector: Boolean = false,
+    val showDeliveryFeeBottomSheet: Boolean = false,
 
-) {
-//    var _items by mutableIntStateOf(0)
-//    val items: Int get() = _items
-//    var _totalPrice by mutableIntStateOf(0)
-//    val totalPrice: Int get() = _totalPrice
-//    var _appliedPromo by mutableStateOf(Promo.None)
-//    val appliedPromo get() = _appliedPromo
-//    var _bonus by mutableStateOf(Bonus(0))
-//    val bonus get() = _bonus
-//
-//    var _selectedFulfillmentType by mutableStateOf(FulfillmentType.DELIVERY)
-//    val selectedFulfillmentType get() = _selectedFulfillmentType
-//    var _deliveryState by mutableStateOf(FulfillmentAddress.Example)
-//    val deliveryState get() = _deliveryState
-//    var _pickupState by mutableStateOf(FulfillmentAddress())
-//    val pickupState get() = _pickupState
-//    var _deliveryPrice by mutableIntStateOf(0)
-//    val deliveryPrice: Int get() = _deliveryPrice
-//
-//    var _selectedPaymentType by mutableStateOf(PaymentType.INDIVIDUAL)
-//    val selectedPaymentType get() = _selectedPaymentType
-//
-//    var _selectedIndividualPaymentType by mutableStateOf(IndividualPaymentType.CARD)
-//    val selectedIndividualPaymentType get() = _selectedIndividualPaymentType
-//
-
-}
+)
 
 data class Customer(
     val name: String,
