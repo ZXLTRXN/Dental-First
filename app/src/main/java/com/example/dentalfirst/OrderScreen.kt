@@ -504,13 +504,13 @@ fun DeliveryDetails(
 
             Spacer(Modifier.height(16.dp))
             Text(
-                "${orderState.deliveryState.country} ${orderState.deliveryState.city}",
+                "${orderState.deliveryAddress.country} ${orderState.deliveryAddress.city}",
                 style =
                     MaterialTheme.typography.bodyLarge,
                 color = MiddleGrey
             )
             Text(
-                orderState.deliveryState.address,
+                orderState.deliveryAddress.address,
                 style = MaterialTheme.typography.bodyLarge
                     .copy(fontWeight = FontWeight.Medium)
             )
@@ -543,6 +543,11 @@ fun DeliveryDetails(
             }
         }
     }
+}
+
+@Composable
+fun TransportCompanies(modifier: Modifier = Modifier) {
+    
 }
 
 @Composable

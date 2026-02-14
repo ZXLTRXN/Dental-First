@@ -12,4 +12,17 @@
 
     <string name="delivery_params">Параметры доставки</string>
 
+    <string name="delivery_moscow">Доставка по Москве</string>
+    <string name="delivery_close_moscow_region">Доставка по ближнему Подмосковью</string>
+    <string name="delivery_russia">Доставка по России</string>
+    <string name="delivery_abroad">Доставка по зарубежью</string>
+
+    <string name="delivery_courier">Курьером</string>
+    <string name="delivery_ems">EMS</string>
+    <string name="delivery_sdek">CDEK</string>
+    <string name="delivery_business_lines">Деловые линии</string>
+    <string name="delivery_russia_mail">Почта России</string>
+    <string name="delivery_pek">ПЭК</string>
+
+
 </resources>
