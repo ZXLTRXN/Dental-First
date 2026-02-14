@@ -14,7 +14,7 @@ class OrderViewModel : ViewModel() {
     fun processIntent(intent: OrderIntent) {
         when (intent) {
             is OrderIntent.SelectFulfillmentType -> selectFulfillmentType(intent.type)
-
+            is OrderIntent.SelectDeliveryItem -> selectDeliveryItem(intent.item)
         }
     }
 
@@ -22,10 +22,14 @@ class OrderViewModel : ViewModel() {
         orderState = orderState.copy(selectedFulfillmentType = type)
     }
 
+    private fun selectDeliveryItem(item: DeliveryItem) {
+        orderState.deliveryItems.select(item)
+    }
+
 
 }
 
 sealed interface OrderIntent {
     data class SelectFulfillmentType(val type: FulfillmentType) : OrderIntent
-//    object SelectPickup: OrderIntent
+    data class SelectDeliveryItem(val item: DeliveryItem) : OrderIntent
 }

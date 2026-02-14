@@ -23,5 +23,6 @@ val SecondaryBlue = Color(0xFF007AEB)
 val TertiaryBlue = Color(0xFFE6F2FD)
 
 val Purple = Color(0xFFE8EBFE)
+val Orange = Color(0xFFFF8700)
 
 

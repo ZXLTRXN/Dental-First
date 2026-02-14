@@ -1,6 +1,10 @@
 package com.example.dentalfirst
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 
 @Stable
@@ -20,7 +24,9 @@ data class OrderState(
 
     val selectedPaymentType: PaymentType = PaymentType.INDIVIDUAL,
     val selectedIndividualPaymentType: IndividualPaymentType = IndividualPaymentType.CARD,
-    val selectedLegalPaymentType: LegalPaymentInfo = LegalPaymentInfo.None
+    val selectedLegalPaymentType: LegalPaymentInfo = LegalPaymentInfo.None,
+
+    val deliveryItems: List<DeliveryItem> = DeliveryItem.Example
 
 ) {
 //    var _items by mutableIntStateOf(0)
@@ -106,7 +112,7 @@ sealed class DeliveryType(
         R.drawable.russian_post_ic
     )
 
-    object SDEK : DeliveryType(
+    object CDEK : DeliveryType(
         R.string.delivery_sdek,
         R.drawable.cdek_ic
     )
@@ -115,19 +121,47 @@ sealed class DeliveryType(
         R.string.delivery_pek,
         R.drawable.pec_ic
     )
+}
+
+@Stable
+data class DeliveryItem(
+    val type: DeliveryType,
+    val isSelected: MutableState<Boolean> = mutableStateOf(false),
+    val isEnabled: MutableState<Boolean> = mutableStateOf(true)
+) {
 
     companion object {
-        val list = listOf(
-            Courier,
-            EMS,
-            Mail,
-            SDEK,
-            BusinessLines,
-            PEK
+        val Example = listOf(
+            DeliveryItem(
+                DeliveryType.Courier,
+                mutableStateOf(true),
+            ),
+            DeliveryItem(
+                DeliveryType.EMS,
+            ),
+            DeliveryItem(
+                DeliveryType.Mail,
+            ),
+            DeliveryItem(
+                DeliveryType.CDEK,
+            ),
+            DeliveryItem(
+                DeliveryType.BusinessLines,
+            ),
+            DeliveryItem(
+                DeliveryType.PEK,
+            )
         )
     }
-
 }
+
+fun List<DeliveryItem>.select(item: DeliveryItem) { // fixme check
+    forEach {
+        it.isSelected.value = false
+    }
+    item.isSelected.value = true
+}
+
 
 enum class DestinationType(val stringRes: Int) {
     MOSCOW(R.string.delivery_moscow),

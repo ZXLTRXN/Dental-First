@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,8 +40,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.dentalfirst.DeliveryItem
+import com.example.dentalfirst.DeliveryType
 import com.example.dentalfirst.IndividualPaymentType
 import com.example.dentalfirst.PaymentType
+import com.example.dentalfirst.select
 import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.Purple
@@ -236,6 +243,103 @@ private fun PreviewIndividualPaymentTypeSelector() {
         IndividualPaymentTypeSelector(
             selectedType = selected,
             onSelect = { selected = it }
+        )
+    }
+}
+
+//// TRANSPORT COMPANIES
+@Composable
+fun TransportCompaniesSelector(
+    list: List<DeliveryItem>,
+    onSelect: (DeliveryItem) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        list.chunked(2).forEach { rowItems ->
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = modifier.fillMaxWidth()
+            ) {
+                rowItems.forEach { item ->
+                    DeliveryTypeItem(
+                        item = item,
+                        onClick = { onSelect(item) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun DeliveryTypeItem(
+    item: DeliveryItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val containerColor by animateColorAsState(
+        targetValue = if (item.isSelected.value) Purple else SuperLightGrey,
+        label = "bg_anim"
+    )
+
+    val contentColor by animateColorAsState(
+        targetValue = if (item.isSelected.value) MaterialTheme.colorScheme.primary else DarkGrey,
+        label = "content_color_anim"
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = if (item.isSelected.value) MaterialTheme.colorScheme.primary else TooLightGrey,
+        label = "border_color_anim"
+    )
+
+    OutlinedButton(
+        onClick = onClick,
+        enabled = item.isEnabled.value,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(
+            1.dp,
+            color = borderColor
+        ),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = SuperLightGrey,
+            disabledContentColor = DarkGrey
+        ),
+        contentPadding = PaddingValues(16.dp),
+        modifier = modifier
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                ImageVector.vectorResource(item.type.iconRes),
+                contentDescription = null
+            )
+
+            Text(
+                text = stringResource(item.type.stringRes),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewTransportCompaniesSelector() {
+    DentalFirstTheme() {
+        var list: List<DeliveryItem> by remember { mutableStateOf(DeliveryItem.Example) }
+
+        TransportCompaniesSelector(
+            list = list,
+            onSelect = { selected ->
+                list.select(selected)
+            }
         )
     }
 }

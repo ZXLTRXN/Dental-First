@@ -53,10 +53,12 @@ import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.IndividualPaymentTypeSelector
 import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
+import com.example.dentalfirst.components.TransportCompaniesSelector
 import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
+import com.example.dentalfirst.ui.theme.Orange
 import com.example.dentalfirst.ui.theme.Purple
 import com.example.dentalfirst.ui.theme.TooLightGrey
 import com.example.dentalfirst.utils.orderStateStub
@@ -69,9 +71,7 @@ fun OrderScreenStateful(
 ) {
     OrderScreen(
         orderState = viewModel.orderState,
-        onFulfillmentSelected = {
-            viewModel.processIntent(OrderIntent.SelectFulfillmentType(it))
-        },
+        processIntent = viewModel::processIntent,
         modifier = modifier
     )
 }
@@ -79,7 +79,7 @@ fun OrderScreenStateful(
 @Composable
 fun OrderScreen(
     orderState: OrderState,
-    onFulfillmentSelected: (FulfillmentType) -> Unit,
+    processIntent: (OrderIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -109,18 +109,36 @@ fun OrderScreen(
         Spacer(modifier = Modifier.height(12.dp))
         FulfillmentTypeTabSelector(
             selectedType = orderState.selectedFulfillmentType,
-            onTabSelected = onFulfillmentSelected,
+            onTabSelected = {
+                processIntent(OrderIntent.SelectFulfillmentType(it))
+            },
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
 
         AnimatedContent(targetState = orderState.selectedFulfillmentType) { targetType ->
             if (targetType == FulfillmentType.DELIVERY) {
-                DeliverySelection(
-                    onMapClick = {}, // fixme
-                    onManualClick = {}, // fixme
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
+                if (orderState.deliveryAddress == FulfillmentAddress.None) {
+                    DeliverySelection(
+                        onMapClick = {}, // fixme
+                        onManualClick = {}, // fixme
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                } else {
+                    DeliveryDetails(
+                        orderState = orderState,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                    TransportationSelection(
+                        orderState = orderState,
+                        onCompanySelected = {
+                            processIntent(OrderIntent.SelectDeliveryItem(it))
+                        },
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+
+                }
+
             } else {
                 PickupDetails(
                     onMapClick = {}, // fixme
@@ -546,8 +564,44 @@ fun DeliveryDetails(
 }
 
 @Composable
-fun TransportCompanies(modifier: Modifier = Modifier) {
-    
+fun TransportationSelection(
+    orderState: OrderState,
+    onCompanySelected: (DeliveryItem) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.transportation_selection),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(orderState.deliveryAddress.destinationType.stringRes),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Orange
+            )
+            Spacer(Modifier.height(12.dp))
+            TransportCompaniesSelector(
+                list = orderState.deliveryItems,
+                onSelect = { selected ->
+                    onCompanySelected(selected)
+                }
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "Желаемый день доставки",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+        }
+    }
 }
 
 @Composable
@@ -651,8 +705,9 @@ fun PaymentDetails(
 @Composable
 fun ItemPreview() {
     DentalFirstTheme {
-        DeliveryDetails(
+        TransportationSelection(
             orderState = orderStateStub,
+            onCompanySelected = {},
             modifier = Modifier.padding(horizontal = 20.dp)
         )
     }
@@ -666,7 +721,7 @@ fun OrderScreenPreview() {
             OrderScreen(
                 orderStateStub,
                 modifier = Modifier.padding(innerPadding),
-                onFulfillmentSelected = {}
+                processIntent = {}
             )
         }
     }

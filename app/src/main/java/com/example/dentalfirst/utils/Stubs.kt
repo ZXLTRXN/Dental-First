@@ -13,5 +13,5 @@ val customerStub = Customer(
 )
 
 val orderStateStub = OrderState(
-    "12.02.2026", 4069, customerStub,
+    "12.02.2026", 4069, customerStub, 4, 1200000,
 )

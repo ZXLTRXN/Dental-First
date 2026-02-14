@@ -11,6 +11,7 @@
     <string name="individual_cash_payment">Наличными при получении</string>
 
     <string name="delivery_params">Параметры доставки</string>
+    <string name="transportation_selection">Способы доставки</string>
 
     <string name="delivery_moscow">Доставка по Москве</string>
     <string name="delivery_close_moscow_region">Доставка по ближнему Подмосковью</string>
