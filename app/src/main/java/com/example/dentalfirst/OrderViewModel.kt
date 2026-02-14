@@ -19,7 +19,32 @@ class OrderViewModel : ViewModel() {
             is OrderIntent.SelectDeliveryItem -> selectDeliveryItem(intent.item)
             is OrderIntent.SelectCourierDate -> selectCourierDate(intent.date)
             OrderIntent.DeliveryFeeDismissedBottomSheet -> dismissBottomSheet()
+            is OrderIntent.AddBonus -> addBonus(intent.amount)
+            is OrderIntent.AddPromo -> addPromo(intent.text)
+            OrderIntent.RemoveBonus -> removeBonus()
+            OrderIntent.RemovePromo -> removePromo()
         }
+    }
+
+    private fun removePromo() {
+        orderState = orderState.copy(appliedPromo = Promo.None)
+    }
+
+    private fun removeBonus() {
+        orderState = orderState.copy(bonus = Bonus(0))
+    }
+
+    private fun addPromo(text: String) {
+        val percentsDiscount = 10
+        orderState = orderState.copy(appliedPromo = Promo(text, percentsDiscount),
+            totalPrice = orderState.totalPrice * (100 - percentsDiscount) / 100
+        )
+    }
+
+    private fun addBonus(amount: Int){
+        orderState = orderState.copy(bonus = Bonus(amount),
+            totalPrice = (orderState.totalPrice - amount * 100).coerceAtLeast(0)
+        )
     }
 
     private fun dismissBottomSheet() {
@@ -63,4 +88,8 @@ sealed interface OrderIntent {
     data class SelectDeliveryItem(val item: DeliveryItem) : OrderIntent
     data class SelectCourierDate(val date: String) : OrderIntent
     object DeliveryFeeDismissedBottomSheet : OrderIntent
+    data class AddPromo(val text: String) : OrderIntent
+    object RemovePromo : OrderIntent
+    data class AddBonus(val amount: Int): OrderIntent
+    object RemoveBonus : OrderIntent
 }

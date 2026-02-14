@@ -47,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,15 +58,19 @@ import com.example.dentalfirst.components.CourierDateItem
 import com.example.dentalfirst.components.DeliveryBottomSheet
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.IndividualPaymentTypeSelector
+import com.example.dentalfirst.components.InputBottomSheet
 import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
 import com.example.dentalfirst.components.TransportCompaniesSelector
 import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
+import com.example.dentalfirst.ui.theme.Green
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
 import com.example.dentalfirst.ui.theme.Orange
+import com.example.dentalfirst.ui.theme.Orange_10
 import com.example.dentalfirst.ui.theme.Purple
+import com.example.dentalfirst.ui.theme.SuperLightGrey
 import com.example.dentalfirst.ui.theme.TooLightGrey
 import com.example.dentalfirst.utils.orderStateStub
 import com.example.dentalfirst.utils.toPriceString
@@ -95,6 +100,50 @@ fun OrderScreen(
             processIntent(OrderIntent.DeliveryFeeDismissedBottomSheet)
         })
 
+    var promoText by remember { mutableStateOf("") }
+    var showPromoSheet by remember { mutableStateOf(false) }
+
+    InputBottomSheet(
+        text = promoText,
+        showSheet = showPromoSheet,
+        onValueChange = { promoText = it },
+        onDismiss = { showPromoSheet = false },
+        onAccept = {
+            showPromoSheet = false // fixme
+            promoText = ""
+            processIntent(OrderIntent.AddPromo(promoText))
+        },
+        placeholder = "Введите купон",
+        keyboardType = KeyboardType.Text
+    )
+
+    var bonusText by remember { mutableStateOf("") }
+    var showBonusSheet by remember { mutableStateOf(false) }
+
+    InputBottomSheet(
+        text = bonusText,
+        showSheet = showBonusSheet,
+        onValueChange = { bonusText = it },
+        onDismiss = { showBonusSheet = false },
+        onAccept = {
+            bonusText.toIntOrNull()?.let {
+                showBonusSheet = false
+                processIntent(OrderIntent.AddBonus(it))
+                bonusText = ""
+            }
+        },
+        placeholder = "Введите количество",
+        keyboardType = KeyboardType.Number
+    ) {
+        Text(
+            "Доступно ${orderState.userBonuses.amountRub} бонусов",
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 14.sp
+            ),
+            color = Green
+        )
+    }
+
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -110,6 +159,18 @@ fun OrderScreen(
         Spacer(modifier = Modifier.height(12.dp))
         OrderDetails(
             orderState,
+            onAddPromoClick = {
+                showPromoSheet = true
+            },
+            onAddBonusClick = {
+                showBonusSheet = true
+            },
+            onRemovePromoClick = {
+                processIntent(OrderIntent.RemovePromo)
+            },
+            onRemoveBonusClick = {
+                processIntent(OrderIntent.RemoveBonus)
+            },
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -222,6 +283,10 @@ fun OrderHeader(
 @Composable
 fun OrderDetails(
     orderState: OrderState,
+    onAddPromoClick: () -> Unit,
+    onAddBonusClick: () -> Unit,
+    onRemovePromoClick: () -> Unit,
+    onRemoveBonusClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -287,18 +352,42 @@ fun OrderDetails(
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.LightGray
                 )
-                BasicBeige(
-                    text = orderState.appliedPromo.name,
-                    onClick = {}, // fixme
-                    textColor = Color(0xFF0BDF47),
-                    backgroundColor = Color(0xFFE7FCED),
-                )
-                BasicBeige(
-                    text = "- ${orderState.bonus.amount} бонусов",
-                    onClick = {}, // fixme
-                    textColor = Color(0xFFFF8700),
-                    backgroundColor = Color(0xFFFFF3E6),
-                )
+                AnimatedContent(orderState.appliedPromo) { promo ->
+                    if (promo == Promo.None) {
+                        BasicBeige(
+                            text = "Купон",
+                            onClick = onAddPromoClick,
+                            contentColor = LightGrey,
+                            backgroundColor = SuperLightGrey,
+                        )
+                    } else {
+                        BasicBeige(
+                            text = orderState.appliedPromo.name,
+                            onClick = onRemovePromoClick,
+                            iconRes = R.drawable.cross_ic,
+                            contentColor = Green,
+                            backgroundColor = Color(0xFFE7FCED),
+                        )
+                    }
+                }
+                AnimatedContent(orderState.bonus) { bonus ->
+                    if (bonus == Bonus(0)) {
+                        BasicBeige(
+                            text = "Бонусы",
+                            onClick = onAddBonusClick,
+                            contentColor = LightGrey,
+                            backgroundColor = SuperLightGrey,
+                        )
+                    } else {
+                        BasicBeige(
+                            text = "- ${orderState.bonus.amountRub} бонусов",
+                            onClick = onRemoveBonusClick,
+                            iconRes = R.drawable.cross_ic,
+                            contentColor = Orange,
+                            backgroundColor = Orange_10,
+                        )
+                    }
+                }
             }
         }
     }

@@ -25,5 +25,6 @@ val TertiaryBlue = Color(0xFFE6F2FD)
 val Purple = Color(0xFFE8EBFE)
 val Orange = Color(0xFFFF8700)
 val Orange_10 = Color(0xFFFFF3E6)
+val Green = Color(0xFF0BDF47)
 
 

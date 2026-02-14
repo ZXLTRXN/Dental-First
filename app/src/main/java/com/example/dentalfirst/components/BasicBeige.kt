@@ -21,8 +21,10 @@ fun BasicBeige(
     text: String,
     onClick: () -> Unit,
     backgroundColor: Color,
-    textColor: Color,
-    modifier: Modifier = Modifier) {
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+    iconRes: Int = R.drawable.add_circle_ic,
+) {
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
@@ -30,22 +32,24 @@ fun BasicBeige(
         onClick = onClick
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 9.dp, horizontal = 8.dp),
+            modifier = Modifier.padding(
+                vertical = 9.dp,
+                horizontal = 8.dp
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
-                color = textColor,
+                color = contentColor,
             )
             Icon(
-                ImageVector.vectorResource(R.drawable.cross_ic),
+                ImageVector.vectorResource(iconRes),
                 contentDescription = null,
-                tint = textColor
+                tint = contentColor
             )
         }
 
     }
-
 }

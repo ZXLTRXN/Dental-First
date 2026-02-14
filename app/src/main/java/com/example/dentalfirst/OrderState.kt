@@ -13,6 +13,8 @@ data class OrderState(
     val items: Int,
     val totalPrice: Int,
     val appliedPromo: Promo = Promo.None,
+
+    val userBonuses: Bonus = Bonus(1200),
     val bonus: Bonus = Bonus(0),
 
     val selectedFulfillmentType: FulfillmentType = FulfillmentType.DELIVERY,
@@ -41,23 +43,23 @@ data class Customer(
 
 data class Promo(
     val name: String,
-    val amount: Float
+    val amount: Int
 ) {
     companion object {
         val None = Promo(
             "",
-            0f
+            0
         )
         val Example = Promo(
             "DFSALE",
-            0f
+            0
         )
     }
 }
 
 @JvmInline
 value class Bonus(
-    val amount: Int
+    val amountRub: Int
 )
 
 enum class FulfillmentType(val stringRes: Int) {

@@ -2,14 +2,18 @@ package com.example.dentalfirst.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,8 +21,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +38,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.example.dentalfirst.R
 import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
+import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.Orange
 import com.example.dentalfirst.ui.theme.Orange_10
 import com.example.dentalfirst.ui.theme.SuperLightGrey
@@ -154,7 +167,8 @@ fun DeliveryBottomSheet(
         }
         Spacer(Modifier.height(20.dp))
 
-        Button(onClick = { onDismiss.invoke() },
+        Button(
+            onClick = { onDismiss.invoke() },
             contentPadding = PaddingValues(16.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
@@ -175,7 +189,7 @@ fun DeliveryBottomSheet(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun DeliveryBottomSheetPreview() {
     DentalFirstTheme() {
@@ -184,5 +198,90 @@ private fun DeliveryBottomSheetPreview() {
             35000,
             {})
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InputBottomSheet(
+    text: String,
+    showSheet: Boolean,
+    onValueChange: (String) -> Unit,
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit,
+    keyboardType: KeyboardType,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    extraContent: @Composable ColumnScope.() -> Unit = {}
+) {
+
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            dragHandle = null,
+            containerColor = Color.White,
+            shape = RoundedCornerShape(
+                20.dp,
+                20.dp
+            ),
+            modifier = modifier
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(horizontal = 20.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
+
+                ) {
+                    TextField(
+                        value = text,
+                        onValueChange = onValueChange,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = keyboardType
+                        ),
+                        modifier = Modifier.weight(1f),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        textStyle = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 16.sp
+                        ),
+                        placeholder = {
+                            Text(
+                                placeholder,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 16.sp
+                                ),
+                                color = LightGrey
+                            )
+                        }
+                    )
+                    TextButton(onClick = onAccept) {
+                        Text(
+                            "Применить",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 16.sp
+                            ),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                }
+                extraContent()
+            }
+
+        }
+    }
 }
