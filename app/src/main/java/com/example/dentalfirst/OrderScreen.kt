@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,6 +57,7 @@ import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.LightGrey
 import com.example.dentalfirst.ui.theme.MiddleGrey
+import com.example.dentalfirst.ui.theme.Purple
 import com.example.dentalfirst.ui.theme.TooLightGrey
 import com.example.dentalfirst.utils.orderStateStub
 import com.example.dentalfirst.utils.toPriceString
@@ -111,7 +116,7 @@ fun OrderScreen(
 
         AnimatedContent(targetState = orderState.selectedFulfillmentType) { targetType ->
             if (targetType == FulfillmentType.DELIVERY) {
-                DeliveryDetails(
+                DeliverySelection(
                     onMapClick = {}, // fixme
                     onManualClick = {}, // fixme
                     modifier = Modifier.padding(horizontal = 20.dp)
@@ -416,7 +421,7 @@ fun MapButton(
 }
 
 @Composable
-fun DeliveryDetails(
+fun DeliverySelection(
     onMapClick: () -> Unit,
     onManualClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -427,7 +432,7 @@ fun DeliveryDetails(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Параметры доставки",
+                text = stringResource(R.string.delivery_params),
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(Modifier.height(12.dp))
@@ -464,6 +469,76 @@ fun DeliveryDetails(
                     text = "Указать вручную",
                     style = MaterialTheme.typography.titleSmall.copy
                         (fontSize = 17.sp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DeliveryDetails(
+    orderState: OrderState,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.delivery_params),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Icon(
+                    ImageVector.vectorResource(R.drawable.pen_ic),
+                    contentDescription = null
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "${orderState.deliveryState.country} ${orderState.deliveryState.city}",
+                style =
+                    MaterialTheme.typography.bodyLarge,
+                color = MiddleGrey
+            )
+            Text(
+                orderState.deliveryState.address,
+                style = MaterialTheme.typography.bodyLarge
+                    .copy(fontWeight = FontWeight.Medium)
+            )
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .height(1.dp)
+                    .background(TooLightGrey)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var switchState by remember { mutableStateOf(true) }
+                Switch(
+                    switchState,
+                    { switchState = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = Purple
+                    )
+                )
+                Text(
+                    "Сохранить этот адрес для оформления заказов",
+                    color = MiddleGrey,
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -550,11 +625,13 @@ fun PaymentDetails(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Text("После оформления заказа ожидайте ответа от менеджера." +
-                    " После того, как заказ будет согласован, вам нужно будет уточнить реквизиты" +
-                    " для перевода оплаты. После того, как заказ будет оплачен, ожидайте чек" +
-                    " из Яндекс ОФД на вашу электронную почту. Если вам нужен оригинал чека, " +
-                    "предупредите об этом заранее.", style = MaterialTheme.typography.bodySmall,
+            Text(
+                "После оформления заказа ожидайте ответа от менеджера." +
+                        " После того, как заказ будет согласован, вам нужно будет уточнить реквизиты" +
+                        " для перевода оплаты. После того, как заказ будет оплачен, ожидайте чек" +
+                        " из Яндекс ОФД на вашу электронную почту. Если вам нужен оригинал чека, " +
+                        "предупредите об этом заранее.",
+                style = MaterialTheme.typography.bodySmall,
                 color = DarkGrey
             )
 
@@ -562,11 +639,14 @@ fun PaymentDetails(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFF0EAE2
+)
 @Composable
 fun ItemPreview() {
     DentalFirstTheme {
-        PaymentDetails(
+        DeliveryDetails(
             orderState = orderStateStub,
             modifier = Modifier.padding(horizontal = 20.dp)
         )

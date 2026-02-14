@@ -23,7 +23,7 @@ data class OrderState(
 
     var _selectedFulfillmentType by mutableStateOf(FulfillmentType.DELIVERY)
     val selectedFulfillmentType get() = _selectedFulfillmentType
-    var _deliveryState by mutableStateOf(FulfillmentAddress())
+    var _deliveryState by mutableStateOf(FulfillmentAddress.Example)
     val deliveryState get() = _deliveryState
     var _pickupState by mutableStateOf(FulfillmentAddress())
     val pickupState get() = _pickupState
@@ -86,6 +86,12 @@ data class FulfillmentAddress(
 ) {
     companion object {
         val NotSelected = FulfillmentAddress()
+        val Example = FulfillmentAddress(
+            "Россия",
+            "Москва",
+            "ул. Большая Ордынка 1, кв. 148, 605068",
+            DestinationType.MOSCOW
+        )
     }
 }
 

@@ -10,4 +10,6 @@
     <string name="individual_card_payment">Картой при получении</string>
     <string name="individual_cash_payment">Наличными при получении</string>
 
+    <string name="delivery_params">Параметры доставки</string>
+
 </resources>
