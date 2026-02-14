@@ -2,9 +2,7 @@ package com.example.dentalfirst
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 
 
 @Stable
@@ -26,7 +24,11 @@ data class OrderState(
     val selectedIndividualPaymentType: IndividualPaymentType = IndividualPaymentType.CARD,
     val selectedLegalPaymentType: LegalPaymentInfo = LegalPaymentInfo.None,
 
-    val deliveryItems: List<DeliveryItem> = DeliveryItem.Example
+    val deliveryItems: List<DeliveryItem> = DeliveryItem.Example,
+    val courierDates: List<String> = listOf("Вт, 17.02 (завтра)","Ср, 18.02", "Чт, 19.02", "Пт, " +
+            "20.02", "Сб, 21.02"),
+    val selectedCourierDateIdx: Int = 0,
+    val showDatesSelector: Boolean = false
 
 ) {
 //    var _items by mutableIntStateOf(0)

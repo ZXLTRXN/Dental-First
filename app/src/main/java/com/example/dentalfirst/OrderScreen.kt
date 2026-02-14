@@ -1,6 +1,7 @@
 package com.example.dentalfirst
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dentalfirst.components.BasicBeige
+import com.example.dentalfirst.components.BulletText
+import com.example.dentalfirst.components.CourierDateItem
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.IndividualPaymentTypeSelector
 import com.example.dentalfirst.components.PaymentTypeSelector
@@ -125,20 +130,25 @@ fun OrderScreen(
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
                 } else {
-                    DeliveryDetails(
-                        orderState = orderState,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
-                    TransportationSelection(
-                        orderState = orderState,
-                        onCompanySelected = {
-                            processIntent(OrderIntent.SelectDeliveryItem(it))
-                        },
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    )
+                    Column() {
+                        DeliveryDetails(
+                            orderState = orderState,
+                            modifier = Modifier.padding(horizontal = 20.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TransportationSelection(
+                            orderState = orderState,
+                            onCompanySelected = {
+                                processIntent(OrderIntent.SelectDeliveryItem(it))
+                            },
+                            onCourierDateSelected = {
+                                processIntent(OrderIntent.SelectCourierDate(it))
+                            },
+                            modifier = Modifier.padding(horizontal = 20.dp)
+                        )
+                    }
 
                 }
-
             } else {
                 PickupDetails(
                     onMapClick = {}, // fixme
@@ -567,6 +577,7 @@ fun DeliveryDetails(
 fun TransportationSelection(
     orderState: OrderState,
     onCompanySelected: (DeliveryItem) -> Unit,
+    onCourierDateSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -575,34 +586,104 @@ fun TransportationSelection(
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(vertical = 16.dp)
         ) {
             Text(
                 text = stringResource(R.string.transportation_selection),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(orderState.deliveryAddress.destinationType.stringRes),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Orange
+                color = Orange,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(Modifier.height(12.dp))
             TransportCompaniesSelector(
                 list = orderState.deliveryItems,
                 onSelect = { selected ->
                     onCompanySelected(selected)
-                }
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = "Желаемый день доставки",
-                style = MaterialTheme.typography.bodyLarge
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
+
+            AnimatedVisibility(orderState.showDatesSelector) {
+                Column() {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = "Желаемый день доставки",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DarkGrey,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp)
+                    ) {
+                        items(orderState.courierDates) {
+                            CourierDateItem(
+                                text = it,
+                                isSelected = it == orderState.courierDates[orderState.selectedCourierDateIdx],
+                                onClick = {
+                                    onCourierDateSelected(it)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            DeliveryDescriptionMsk(Modifier.padding(horizontal = 16.dp))
         }
     }
 }
+
+@Composable
+fun DeliveryDescriptionMsk(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.delivery_moscow_detailed),
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 14.sp,
+                lineHeight = 21.sp
+            ),
+            color = DarkGrey,
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.delivery_moscow_detailed_1_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.delivery_moscow_detailed_2_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.delivery_moscow_detailed_3_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.delivery_moscow_detailed_4),
+            style = MaterialTheme.typography.bodySmall,
+            color = DarkGrey
+        )
+    }
+
+}
+
+
 
 @Composable
 fun PickupDetails( // fixme
@@ -708,6 +789,7 @@ fun ItemPreview() {
         TransportationSelection(
             orderState = orderStateStub,
             onCompanySelected = {},
+            onCourierDateSelected = {},
             modifier = Modifier.padding(horizontal = 20.dp)
         )
     }
