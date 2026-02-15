@@ -5,3 +5,10 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     id("org.jetbrains.kotlin.plugin.parcelize") version libs.versions.kotlin apply false
 }
+
+//repositories {
+//    mavenCentral()
+//    maven {
+//        url("https://maven.google.com/")
+//    }
+//}

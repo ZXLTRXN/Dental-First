@@ -91,18 +91,19 @@ import com.example.dentalfirst.utils.toPriceString
 
 @Composable
 fun OrderScreenStateful(
+    onNavigateToAddress: () -> Unit,
+    onNavigateToMap: () -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: OrderViewModel = viewModel(),
-    onNavigateToAddress: () -> Unit
 ) {
     OrderScreen(
         orderState = viewModel.orderState,
         processIntent = { intent ->
-            if (intent is OrderIntent.OpenAddressSelection) {
-                onNavigateToAddress()
-            } else {
-                viewModel.processIntent(intent)
+            when (intent) {
+                is OrderIntent.OpenAddressSelection -> onNavigateToAddress()
+                is OrderIntent.OpenMapSelection -> onNavigateToMap()
+                else -> viewModel.processIntent(intent)
             }
         },
         modifier = modifier,
@@ -220,7 +221,7 @@ fun OrderScreen(
             if (targetType == FulfillmentType.DELIVERY) {
                 if (orderState.deliveryAddress == FulfillmentAddress.None) {
                     DeliverySelection(
-                        onMapClick = { processIntent(OrderIntent.OpenAddressSelection) }, // fixme
+                        onMapClick = { processIntent(OrderIntent.OpenMapSelection) },
                         onManualClick = { processIntent(OrderIntent.OpenAddressSelection) },
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
@@ -246,7 +247,7 @@ fun OrderScreen(
                 }
             } else {
                 PickupDetails(
-                    onMapClick = {}, // fixme
+                    onMapClick = { processIntent(OrderIntent.OpenMapSelection) }, // fixme
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }

@@ -1,11 +1,8 @@
 package com.example.dentalfirst.navigation
 
-import androidx.compose.foundation.layout.Column
+import MapAddressSelectionScreen
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,12 +35,18 @@ fun AppNavigation(
                 onNavigateToAddress = {
                     navController.navigate(AddressPickerRoute)
                 },
+                onNavigateToMap = {
+                    navController.navigate(MapRoute)
+                },
                 viewModel = viewModel,
                 modifier = modifier,
                 innerPadding = innerPadding
             )
             val address = backStackEntry.savedStateHandle
-                .getStateFlow<FulfillmentAddress?>("selected_address", null)
+                .getStateFlow<FulfillmentAddress?>(
+                    "selected_address",
+                    null
+                )
                 .collectAsState()
 
             LaunchedEffect(address.value) {
@@ -60,7 +63,30 @@ fun AppNavigation(
                 onAddressSelected = { address ->
                     navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.set("selected_address", address)
+                        ?.set(
+                            "selected_address",
+                            address
+                        )
+
+                    navController.popBackStack()
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                modifier = modifier.padding(innerPadding)
+            )
+        }
+
+        // Экран выбора адреса
+        composable<MapRoute> {
+            MapAddressSelectionScreen(
+                onAddressSelected = { address ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(
+                            "selected_address",
+                            address
+                        )
 
                     navController.popBackStack()
                 },

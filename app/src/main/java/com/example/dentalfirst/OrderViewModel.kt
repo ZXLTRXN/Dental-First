@@ -51,6 +51,7 @@ class OrderViewModel(
             is OrderIntent.AddItem -> addOrderItem(intent.id)
             is OrderIntent.RemoveItem -> removeOrderItem(intent.id)
             OrderIntent.OpenAddressSelection -> {}
+            OrderIntent.OpenMapSelection -> {}
             is OrderIntent.UpdateAddress -> updateAddressInState(intent.address)
         }
     }
@@ -151,6 +152,7 @@ sealed interface OrderIntent {
     data class RemoveItem(val id: String) : OrderIntent
 
     object OpenAddressSelection : OrderIntent
+    object OpenMapSelection : OrderIntent
     data class UpdateAddress(val address: FulfillmentAddress) : OrderIntent
 
 }
