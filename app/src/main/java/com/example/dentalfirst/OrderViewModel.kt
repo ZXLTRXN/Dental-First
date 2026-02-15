@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.dentalfirst.models.Bonus
 import com.example.dentalfirst.models.DeliveryItem
 import com.example.dentalfirst.models.DeliveryType
@@ -17,7 +16,6 @@ import com.example.dentalfirst.models.Promo
 import com.example.dentalfirst.models.select
 import com.example.dentalfirst.utils.orderStateStub
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class OrderViewModel(
     private val savedStateHandle: SavedStateHandle
@@ -27,29 +25,17 @@ class OrderViewModel(
         private set
 
     val addressState: StateFlow<FulfillmentAddress?> =
-        savedStateHandle.getStateFlow("selected_address", null)
+        savedStateHandle.getStateFlow(
+            "selected_address",
+            null
+        )
 
     var bottomSheetShown: Boolean = false
-
-    init {
-        // Запускаем сбор данных из SavedStateHandle
-        viewModelScope.launch {
-            savedStateHandle.getStateFlow<FulfillmentAddress?>(
-                key = "selected_address",
-                initialValue = null
-            ).collect { address ->
-                if (address != null) {
-                    updateAddressInState(address)
-                }
-            }
-        }
-    }
 
     private fun updateAddressInState(address: FulfillmentAddress) {
         orderState = orderState.copy(
             deliveryAddress = address,
         )
-        savedStateHandle["selected_address"] = null
     }
 
     fun processIntent(intent: OrderIntent) {
@@ -65,6 +51,7 @@ class OrderViewModel(
             is OrderIntent.AddItem -> addOrderItem(intent.id)
             is OrderIntent.RemoveItem -> removeOrderItem(intent.id)
             OrderIntent.OpenAddressSelection -> {}
+            is OrderIntent.UpdateAddress -> updateAddressInState(intent.address)
         }
     }
 
@@ -77,7 +64,10 @@ class OrderViewModel(
     }
 
 
-    private fun updateCount(itemId: String, transform: (Int) -> Int) {
+    private fun updateCount(
+        itemId: String,
+        transform: (Int) -> Int
+    ) {
         orderState = orderState.copy(
             items = orderState.items
                 .map { item ->
@@ -160,6 +150,7 @@ sealed interface OrderIntent {
     data class AddItem(val id: String) : OrderIntent
     data class RemoveItem(val id: String) : OrderIntent
 
-    object OpenAddressSelection: OrderIntent
+    object OpenAddressSelection : OrderIntent
+    data class UpdateAddress(val address: FulfillmentAddress) : OrderIntent
 
 }
