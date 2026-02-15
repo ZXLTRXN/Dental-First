@@ -24,7 +24,8 @@ private val LightColorScheme = lightColorScheme(
     tertiary = TertiaryBlue,
     onTertiary = SecondaryBlue,
 
-    background = MiddleGrey, // fixme SuperLightGrey
+    background = SuperLightGrey,
+//    background = MiddleGrey, // fixme SuperLightGrey
     onBackground = Color.Black,
     surface = Color.White,
     onSurface = Color.Black,

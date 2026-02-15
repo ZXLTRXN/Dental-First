@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DentalFirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(modifier = Modifier.padding(innerPadding))
+                    AppNavigation(innerPadding = innerPadding)
                 }
             }
         }

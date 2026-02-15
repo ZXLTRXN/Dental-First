@@ -65,6 +65,7 @@ import com.example.dentalfirst.components.IndividualPaymentTypeSelector
 import com.example.dentalfirst.components.InputBottomSheet
 import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
+import com.example.dentalfirst.components.ScreenHeader
 import com.example.dentalfirst.components.TransportCompaniesSelector
 import com.example.dentalfirst.models.Bonus
 import com.example.dentalfirst.models.DeliveryItem
@@ -91,6 +92,7 @@ import com.example.dentalfirst.utils.toPriceString
 @Composable
 fun OrderScreenStateful(
     modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: OrderViewModel = viewModel(),
     onNavigateToAddress: () -> Unit
 ) {
@@ -103,7 +105,8 @@ fun OrderScreenStateful(
                 viewModel.processIntent(intent)
             }
         },
-        modifier = modifier
+        modifier = modifier,
+        innerPadding = innerPadding
     )
 }
 
@@ -111,7 +114,8 @@ fun OrderScreenStateful(
 fun OrderScreen(
     orderState: OrderState,
     processIntent: (OrderIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     DeliveryBottomSheet(
         show = orderState.showDeliveryFeeBottomSheet,
@@ -170,12 +174,14 @@ fun OrderScreen(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
+            .padding(innerPadding),
     ) {
         Spacer(modifier = Modifier.height(12.dp))
-        OrderHeader(
+        ScreenHeader(
+            text = "Оформление заказа",
             onBackClick = {},
             modifier = Modifier.padding(horizontal = 20.dp)
-        ) // fixme
+        )
         Spacer(modifier = Modifier.height(12.dp))
         OrderDetails(
             orderState,
@@ -279,41 +285,6 @@ fun OrderScreen(
         )
     }
 
-}
-
-@Composable
-fun OrderHeader(
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Surface(
-            modifier = Modifier
-                .padding(7.dp)
-                .size(33.dp),
-            shape = CircleShape,
-            color = Color.Black.copy(alpha = 0.2f),
-            onClick = onBackClick
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    ImageVector.vectorResource(R.drawable.left_arrow_ic),
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-        }
-        Text(
-            text = "Оформление заказа",
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
 }
 
 @Composable

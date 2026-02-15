@@ -1,17 +1,21 @@
 package com.example.dentalfirst.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dentalfirst.ManualAddressSelectionScreen
 import com.example.dentalfirst.OrderIntent
 import com.example.dentalfirst.OrderScreenStateful
 import com.example.dentalfirst.OrderViewModel
@@ -19,22 +23,24 @@ import com.example.dentalfirst.models.FulfillmentAddress
 
 @Composable
 fun AppNavigation(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = OrderRoute // Используем объект вместо строки
+        startDestination = OrderRoute
     ) {
-        // Экран заказов
         composable<OrderRoute> { backStackEntry ->
             val viewModel: OrderViewModel = viewModel()
             OrderScreenStateful(
                 onNavigateToAddress = {
                     navController.navigate(AddressPickerRoute)
                 },
-                viewModel = viewModel
+                viewModel = viewModel,
+                modifier = modifier,
+                innerPadding = innerPadding
             )
             val address = backStackEntry.savedStateHandle
                 .getStateFlow<FulfillmentAddress?>("selected_address", null)
@@ -50,28 +56,20 @@ fun AppNavigation(
 
         // Экран выбора адреса
         composable<AddressPickerRoute> {
-            AddressPickerScreen(
+            ManualAddressSelectionScreen(
                 onAddressSelected = { address ->
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("selected_address", address)
 
                     navController.popBackStack()
-                }
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                modifier = modifier.padding(innerPadding)
             )
         }
     }
 }
 
-@Composable
-fun AddressPickerScreen(onAddressSelected: (FulfillmentAddress) -> Unit) {
-    Column(Modifier.fillMaxSize()) {
-        Text("AAAAAA")
-        Button(onClick = {
-            onAddressSelected(FulfillmentAddress.Example)
-        }) {
-            Text("AAAAAA")
-        }
-
-    }
-}
