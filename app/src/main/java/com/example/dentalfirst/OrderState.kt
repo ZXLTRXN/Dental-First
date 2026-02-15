@@ -1,24 +1,21 @@
 package com.example.dentalfirst
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.Immutable
 
 
-@Stable
+@Immutable
 data class OrderState(
     val date: String,
     val id: Long,
     val customer: Customer,
-    val items: Int,
-    val basePrice: Int,
+    val items: List<OrderItem>,
     val appliedPromo: Promo = Promo.None,
 
     val userBonuses: Bonus = Bonus(0),
     val bonus: Bonus = Bonus(0),
 
     val selectedFulfillmentType: FulfillmentType = FulfillmentType.DELIVERY,
-    val deliveryAddress: FulfillmentAddress = FulfillmentAddress.Example,
+    val deliveryAddress: FulfillmentAddress = FulfillmentAddress.None,
     val pickupAddress: FulfillmentAddress = FulfillmentAddress.None,
     val deliveryPrice: Int = 0,
 
@@ -27,17 +24,32 @@ data class OrderState(
     val selectedLegalPaymentType: LegalPaymentInfo = LegalPaymentInfo.None,
 
     val deliveryItems: List<DeliveryItem> = DeliveryItem.Example,
-    val courierDates: List<String> = listOf("Вт, 17.02 (завтра)","Ср, 18.02", "Чт, 19.02", "Пт, " +
-            "20.02", "Сб, 21.02"),
+    val courierDates: List<String> = emptyList(),
     val selectedCourierDateIdx: Int = 0,
     val showDatesSelector: Boolean = false,
     val showDeliveryFeeBottomSheet: Boolean = false,
 ) {
+    val basePrice: Int
+        get() {
+            return items.sumOf { it.basePrice }
+        }
+
     val totalPrice: Int
         get() {
-        val discount = basePrice * appliedPromo.amount / 100
-        return (basePrice - discount - bonus.amount).coerceAtLeast(0)
-    }
+            val discountedPrice = items.sumOf { it.getDiscountedPrice(appliedPromo) }
+            return (discountedPrice - bonus.amount).coerceAtLeast(0)
+        }
+
+    val itemsCount: Int
+        get() {
+            return items.sumOf { it.count }
+        }
+
+    val paymentAvailable: Boolean
+        get() = (deliveryAddress != FulfillmentAddress.None ||
+                pickupAddress != FulfillmentAddress.None) &&
+                selectedPaymentType == PaymentType.INDIVIDUAL
+
 }
 
 data class Customer(
@@ -48,7 +60,7 @@ data class Customer(
 
 data class Promo(
     val name: String,
-    val amount: Int
+    val amountPercents: Int
 ) {
     companion object {
         val None = Promo(
@@ -66,110 +78,6 @@ data class Promo(
 value class Bonus(
     val amount: Int
 )
-
-enum class FulfillmentType(val stringRes: Int) {
-    DELIVERY(R.string.delivery),
-    PICKUP(R.string.pickup)
-}
-
-sealed class DeliveryType(
-    val stringRes: Int,
-    val iconRes: Int
-) {
-    object Courier : DeliveryType(
-        R.string.delivery_courier,
-        R.drawable.courier_ic
-    )
-
-    object EMS : DeliveryType(
-        R.string.delivery_ems,
-        R.drawable.ems_ic
-    )
-
-    object BusinessLines : DeliveryType(
-        R.string.delivery_business_lines,
-        R.drawable.business_lines_ic
-    )
-
-    object Mail : DeliveryType(
-        R.string.delivery_russia_mail,
-        R.drawable.russian_post_ic
-    )
-
-    object CDEK : DeliveryType(
-        R.string.delivery_sdek,
-        R.drawable.cdek_ic
-    )
-
-    object PEK : DeliveryType(
-        R.string.delivery_pek,
-        R.drawable.pec_ic
-    )
-}
-
-@Stable
-data class DeliveryItem(
-    val type: DeliveryType,
-    val isSelected: MutableState<Boolean> = mutableStateOf(false),
-    val isEnabled: MutableState<Boolean> = mutableStateOf(true)
-) {
-
-    companion object {
-        val Example = listOf(
-            DeliveryItem(
-                DeliveryType.Courier,
-                mutableStateOf(true),
-            ),
-            DeliveryItem(
-                DeliveryType.EMS,
-            ),
-            DeliveryItem(
-                DeliveryType.Mail,
-            ),
-            DeliveryItem(
-                DeliveryType.CDEK,
-            ),
-            DeliveryItem(
-                DeliveryType.BusinessLines,
-            ),
-            DeliveryItem(
-                DeliveryType.PEK,
-            )
-        )
-    }
-}
-
-fun List<DeliveryItem>.select(item: DeliveryItem) { // fixme check
-    forEach {
-        it.isSelected.value = false
-    }
-    item.isSelected.value = true
-}
-
-
-enum class DestinationType(val stringRes: Int) {
-    MOSCOW(R.string.delivery_moscow),
-    NEAR_MOSCOW(R.string.delivery_close_moscow_region),
-    RUSSIA(R.string.delivery_russia),
-    INTERNATIONAL(R.string.delivery_abroad)
-}
-
-data class FulfillmentAddress(
-    val country: String = "",
-    val city: String = "",
-    val address: String = "",
-    val destinationType: DestinationType = DestinationType.MOSCOW
-) {
-    companion object {
-        val None = FulfillmentAddress()
-        val Example = FulfillmentAddress(
-            "Россия",
-            "Москва",
-            "ул. Большая Ордынка 1, кв. 148, 605068",
-            DestinationType.MOSCOW
-        )
-    }
-}
 
 enum class PaymentType(val stringRes: Int) {
     INDIVIDUAL(R.string.individual_entity_payment),
@@ -193,5 +101,21 @@ enum class IndividualPaymentType(
 data class LegalPaymentInfo(val inn: String) {
     companion object {
         val None = LegalPaymentInfo("")
+    }
+}
+
+data class OrderItem(
+    val id: String,
+    val name: String,
+    val basePriceFor1: Int,
+    val count: Int,
+    val photoId: Int
+) {
+    val basePrice: Int
+        get() = basePriceFor1 * count
+
+    fun getDiscountedPrice(promo: Promo): Int {
+        val discount = basePrice * promo.amountPercents / 100
+        return basePrice - discount
     }
 }

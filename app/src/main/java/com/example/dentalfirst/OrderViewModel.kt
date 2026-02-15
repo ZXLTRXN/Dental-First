@@ -23,7 +23,30 @@ class OrderViewModel : ViewModel() {
             is OrderIntent.AddPromo -> addPromo(intent.text)
             OrderIntent.RemoveBonus -> removeBonus()
             OrderIntent.RemovePromo -> removePromo()
+            is OrderIntent.AddItem -> addOrderItem(intent.id)
+            is OrderIntent.RemoveItem -> removeOrderItem(intent.id)
         }
+    }
+
+    private fun removeOrderItem(id: String) {
+        updateCount(id) { it - 1 }
+    }
+
+    private fun addOrderItem(id: String) {
+        updateCount(id) { it + 1 }
+    }
+
+
+    private fun updateCount(itemId: String, transform: (Int) -> Int) {
+        orderState = orderState.copy(
+            items = orderState.items
+                .map { item ->
+                    if (item.id == itemId) {
+                        item.copy(count = transform(item.count))
+                    } else item
+                }
+                .filter { it.count > 0 }
+        )
     }
 
     private fun removePromo() {
@@ -36,10 +59,15 @@ class OrderViewModel : ViewModel() {
 
     private fun addPromo(text: String) {
         val percentsDiscount = 10
-        orderState = orderState.copy(appliedPromo = Promo(text, percentsDiscount))
+        orderState = orderState.copy(
+            appliedPromo = Promo(
+                text,
+                percentsDiscount
+            )
+        )
     }
 
-    private fun addBonus(amount: Int){
+    private fun addBonus(amount: Int) {
         orderState = orderState.copy(bonus = Bonus(amount * 100))
     }
 
@@ -69,12 +97,14 @@ class OrderViewModel : ViewModel() {
 
     private fun updateDatesSelectorVisibility() {
         val isMoscowCourier =
-        orderState.selectedFulfillmentType == FulfillmentType.DELIVERY &&
-                orderState.deliveryAddress.destinationType == DestinationType.MOSCOW &&
-                orderState.deliveryItems.first { it.type == DeliveryType.Courier }.isSelected
-                    .value
+            orderState.selectedFulfillmentType == FulfillmentType.DELIVERY &&
+                    orderState.deliveryAddress.destinationType == DestinationType.MOSCOW &&
+                    orderState.deliveryItems.first { it.type == DeliveryType.Courier }.isSelected
+                        .value
         orderState = orderState.copy(showDatesSelector = isMoscowCourier) // fixme на getter
     }
+
+
 
 
 }
@@ -84,8 +114,13 @@ sealed interface OrderIntent {
     data class SelectDeliveryItem(val item: DeliveryItem) : OrderIntent
     data class SelectCourierDate(val date: String) : OrderIntent
     object DeliveryFeeDismissedBottomSheet : OrderIntent
+
     data class AddPromo(val text: String) : OrderIntent
     object RemovePromo : OrderIntent
-    data class AddBonus(val amount: Int): OrderIntent
+    data class AddBonus(val amount: Int) : OrderIntent
     object RemoveBonus : OrderIntent
+
+    data class AddItem(val id: String) : OrderIntent
+    data class RemoveItem(val id: String) : OrderIntent
+
 }

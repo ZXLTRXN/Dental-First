@@ -2,6 +2,8 @@ package com.example.dentalfirst
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -231,16 +235,32 @@ fun OrderScreen(
             orderState,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OrderItems(
+            orderState,
+            onMinus = {
+                processIntent(OrderIntent.RemoveItem(it))
+            },
+            onPlus = {
+                processIntent(OrderIntent.AddItem(it))
+            },
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        val animatedPrice by animateFloatAsState(
+            targetValue = orderState.totalPrice.toFloat(),
+            animationSpec = tween(durationMillis = 200)
+        )
         TotalDetails(
-            price = orderState.totalPrice,
+            price = animatedPrice.toInt(),
             deliveryPrice = orderState.deliveryPrice,
-            isButtonEnabled = true, // fixme
+            isButtonEnabled = orderState.paymentAvailable,
             onClick = {}, // fixme
             modifier = Modifier
         )
-
     }
 
 }
@@ -325,7 +345,7 @@ fun OrderDetails(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "• ${orderState.items} товаров",
+                    text = "• ${orderState.itemsCount} товара",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MiddleGrey
                 )
@@ -873,6 +893,171 @@ fun PaymentDetails(
     }
 }
 
+@Composable
+fun OrderItems(
+    orderState: OrderState,
+    onMinus: (String) -> Unit,
+    onPlus: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Состав заказа",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MiddleGrey,
+                    text = "${orderState.itemsCount} товара"
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+            val items = orderState.items
+            items.forEachIndexed { index, item ->
+                OrderItemCard(
+                    item = item,
+                    promo = orderState.appliedPromo,
+                    onMinus = { onMinus(item.id) },
+                    onPlus = { onPlus(item.id) },
+                    modifier = Modifier
+                )
+                if (index < items.size - 1) {
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OrderItemCard(
+    promo: Promo,
+    item: OrderItem,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+    modifier: Modifier
+) {
+    Row(modifier.fillMaxWidth()) {
+        Image(
+            painter = painterResource(id = item.photoId),
+            contentDescription = null,
+            modifier = Modifier
+                .size(32.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                item.name,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .width(100.dp)
+
+                ) {
+                    Text(
+                        "${item.getDiscountedPrice(promo).toPriceString()} ₽",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    if (promo != Promo.None) {
+                        Text(
+                            "${item.basePrice.toPriceString()} ₽",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LightGrey,
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                    }
+                }
+                CountSelector(
+                    onMinus,
+                    onPlus,
+                    item.count
+                )
+            }
+
+        }
+    }
+
+}
+
+@Composable
+fun CountSelector(
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Button(
+            onClick = onMinus,
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                    Purple,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            contentPadding = PaddingValues(
+                vertical = 0.dp,
+                horizontal = 0.dp
+            ),
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Text(
+                "-",
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Text(
+            "$count шт.",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            modifier = Modifier.width(65.dp),
+            textAlign = TextAlign.Center
+
+        )
+        Button(
+            onClick = onPlus,
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                    Purple,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            contentPadding = PaddingValues(
+                vertical = 0.dp,
+                horizontal = 0.dp
+            ),
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Text(
+                "+",
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+    }
+}
+
 @Preview(
     showBackground = true,
     backgroundColor = 0xFFF0EAE2
@@ -880,11 +1065,11 @@ fun PaymentDetails(
 @Composable
 fun ItemPreview() {
     DentalFirstTheme {
-        TransportationSelection(
-            orderState = orderStateStub,
-            onCompanySelected = {},
-            onCourierDateSelected = {},
-            modifier = Modifier.padding(horizontal = 20.dp)
+        OrderItems(
+            orderStateStub,
+            {},
+            {},
+            Modifier.padding(horizontal = 20.dp)
         )
     }
 }
