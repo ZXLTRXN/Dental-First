@@ -3,15 +3,54 @@ package com.example.dentalfirst
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.dentalfirst.models.Bonus
+import com.example.dentalfirst.models.DeliveryItem
+import com.example.dentalfirst.models.DeliveryType
+import com.example.dentalfirst.models.DestinationType
+import com.example.dentalfirst.models.FulfillmentAddress
+import com.example.dentalfirst.models.FulfillmentType
+import com.example.dentalfirst.models.OrderState
+import com.example.dentalfirst.models.Promo
+import com.example.dentalfirst.models.select
 import com.example.dentalfirst.utils.orderStateStub
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class OrderViewModel : ViewModel() {
+class OrderViewModel(
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     var orderState: OrderState by mutableStateOf(orderStateStub)
         private set
 
+    val addressState: StateFlow<FulfillmentAddress?> =
+        savedStateHandle.getStateFlow("selected_address", null)
+
     var bottomSheetShown: Boolean = false
+
+    init {
+        // Запускаем сбор данных из SavedStateHandle
+        viewModelScope.launch {
+            savedStateHandle.getStateFlow<FulfillmentAddress?>(
+                key = "selected_address",
+                initialValue = null
+            ).collect { address ->
+                if (address != null) {
+                    updateAddressInState(address)
+                }
+            }
+        }
+    }
+
+    private fun updateAddressInState(address: FulfillmentAddress) {
+        orderState = orderState.copy(
+            deliveryAddress = address,
+        )
+        savedStateHandle["selected_address"] = null
+    }
 
     fun processIntent(intent: OrderIntent) {
         when (intent) {
@@ -25,6 +64,7 @@ class OrderViewModel : ViewModel() {
             OrderIntent.RemovePromo -> removePromo()
             is OrderIntent.AddItem -> addOrderItem(intent.id)
             is OrderIntent.RemoveItem -> removeOrderItem(intent.id)
+            OrderIntent.OpenAddressSelection -> {}
         }
     }
 
@@ -104,9 +144,6 @@ class OrderViewModel : ViewModel() {
         orderState = orderState.copy(showDatesSelector = isMoscowCourier) // fixme на getter
     }
 
-
-
-
 }
 
 sealed interface OrderIntent {
@@ -122,5 +159,7 @@ sealed interface OrderIntent {
 
     data class AddItem(val id: String) : OrderIntent
     data class RemoveItem(val id: String) : OrderIntent
+
+    object OpenAddressSelection: OrderIntent
 
 }

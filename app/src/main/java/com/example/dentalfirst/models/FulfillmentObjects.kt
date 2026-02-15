@@ -1,8 +1,14 @@
-package com.example.dentalfirst
+package com.example.dentalfirst.models
 
+
+import android.os.Parcel
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
+import com.example.dentalfirst.R
+import kotlinx.serialization.Serializable
+import android.os.Parcelable
+
 
 enum class FulfillmentType(val stringRes: Int) {
     DELIVERY(R.string.delivery),
@@ -90,22 +96,51 @@ enum class DestinationType(val stringRes: Int) {
     MOSCOW(R.string.delivery_moscow),
     NEAR_MOSCOW(R.string.delivery_close_moscow_region),
     RUSSIA(R.string.delivery_russia),
-    INTERNATIONAL(R.string.delivery_abroad)
+    INTERNATIONAL(R.string.delivery_abroad);
+
+    companion object {
+        fun fromOrdinal(ordinal: Int): DestinationType =
+            values().getOrElse(ordinal) { MOSCOW }
+    }
 }
 
+@Serializable
 data class FulfillmentAddress(
     val country: String = "",
     val city: String = "",
     val address: String = "",
     val destinationType: DestinationType = DestinationType.MOSCOW
-) {
-    companion object {
+): Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        country = parcel.readString() ?: "",
+        city = parcel.readString() ?: "",
+        address = parcel.readString() ?: "",
+        destinationType = DestinationType.fromOrdinal(parcel.readInt())
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(country)
+        parcel.writeString(city)
+        parcel.writeString(address)
+        parcel.writeInt(destinationType.ordinal)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<FulfillmentAddress> {
+        override fun createFromParcel(parcel: Parcel): FulfillmentAddress =
+            FulfillmentAddress(parcel)
+
+        override fun newArray(size: Int): Array<FulfillmentAddress?> =
+            arrayOfNulls(size)
+
         val None = FulfillmentAddress()
         val Example = FulfillmentAddress(
-            "Россия",
-            "Москва",
-            "ул. Большая Ордынка 1, кв. 148, 605068",
-            DestinationType.MOSCOW
+            country = "Россия",
+            city = "Москва",
+            address = "ул. Большая Ордынка 1, кв. 148, 605068",
+            destinationType = DestinationType.MOSCOW
         )
     }
 }

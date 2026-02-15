@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.safeGesturesPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.example.dentalfirst.navigation.AppNavigation
 
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 
@@ -21,11 +22,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             DentalFirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    OrderScreenStateful(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    AppNavigation(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
+

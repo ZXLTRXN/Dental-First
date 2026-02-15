@@ -66,6 +66,15 @@ import com.example.dentalfirst.components.InputBottomSheet
 import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
 import com.example.dentalfirst.components.TransportCompaniesSelector
+import com.example.dentalfirst.models.Bonus
+import com.example.dentalfirst.models.DeliveryItem
+import com.example.dentalfirst.models.FulfillmentAddress
+import com.example.dentalfirst.models.FulfillmentType
+import com.example.dentalfirst.models.IndividualPaymentType
+import com.example.dentalfirst.models.OrderItem
+import com.example.dentalfirst.models.OrderState
+import com.example.dentalfirst.models.PaymentType
+import com.example.dentalfirst.models.Promo
 import com.example.dentalfirst.ui.theme.DarkGrey
 import com.example.dentalfirst.ui.theme.DentalFirstTheme
 import com.example.dentalfirst.ui.theme.Green
@@ -82,11 +91,18 @@ import com.example.dentalfirst.utils.toPriceString
 @Composable
 fun OrderScreenStateful(
     modifier: Modifier = Modifier,
-    viewModel: OrderViewModel = viewModel()
+    viewModel: OrderViewModel = viewModel(),
+    onNavigateToAddress: () -> Unit
 ) {
     OrderScreen(
         orderState = viewModel.orderState,
-        processIntent = viewModel::processIntent,
+        processIntent = { intent ->
+            if (intent is OrderIntent.OpenAddressSelection) {
+                onNavigateToAddress()
+            } else {
+                viewModel.processIntent(intent)
+            }
+        },
         modifier = modifier
     )
 }
@@ -198,8 +214,8 @@ fun OrderScreen(
             if (targetType == FulfillmentType.DELIVERY) {
                 if (orderState.deliveryAddress == FulfillmentAddress.None) {
                     DeliverySelection(
-                        onMapClick = {}, // fixme
-                        onManualClick = {}, // fixme
+                        onMapClick = { processIntent(OrderIntent.OpenAddressSelection) }, // fixme
+                        onManualClick = { processIntent(OrderIntent.OpenAddressSelection) },
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
                 } else {

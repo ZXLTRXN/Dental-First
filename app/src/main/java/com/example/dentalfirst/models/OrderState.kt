@@ -1,6 +1,7 @@
-package com.example.dentalfirst
+package com.example.dentalfirst.models
 
 import androidx.compose.runtime.Immutable
+import com.example.dentalfirst.R
 
 
 @Immutable

@@ -1,10 +1,10 @@
 package com.example.dentalfirst.utils
 
-import com.example.dentalfirst.Bonus
-import com.example.dentalfirst.Customer
-import com.example.dentalfirst.OrderItem
-import com.example.dentalfirst.OrderState
-import com.example.dentalfirst.Promo
+import com.example.dentalfirst.models.Bonus
+import com.example.dentalfirst.models.Customer
+import com.example.dentalfirst.models.OrderItem
+import com.example.dentalfirst.models.OrderState
+import com.example.dentalfirst.models.Promo
 import com.example.dentalfirst.R
 
 
