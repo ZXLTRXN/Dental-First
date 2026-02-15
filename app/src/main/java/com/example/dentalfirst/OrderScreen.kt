@@ -110,8 +110,8 @@ fun OrderScreen(
         onDismiss = { showPromoSheet = false },
         onAccept = {
             showPromoSheet = false // fixme
-            promoText = ""
             processIntent(OrderIntent.AddPromo(promoText))
+            promoText = ""
         },
         placeholder = "Введите купон",
         keyboardType = KeyboardType.Text
@@ -136,7 +136,7 @@ fun OrderScreen(
         keyboardType = KeyboardType.Number
     ) {
         Text(
-            "Доступно ${orderState.userBonuses.amountRub} бонусов",
+            "Доступно ${orderState.userBonuses.amount.toPriceString()} бонусов",
             style = MaterialTheme.typography.bodySmall.copy(
                 fontSize = 14.sp
             ),
@@ -362,7 +362,7 @@ fun OrderDetails(
                         )
                     } else {
                         BasicBeige(
-                            text = orderState.appliedPromo.name,
+                            text = promo.name,
                             onClick = onRemovePromoClick,
                             iconRes = R.drawable.cross_ic,
                             contentColor = Green,
@@ -380,7 +380,7 @@ fun OrderDetails(
                         )
                     } else {
                         BasicBeige(
-                            text = "- ${orderState.bonus.amountRub} бонусов",
+                            text = "- ${bonus.amount.toPriceString()} бонусов",
                             onClick = onRemoveBonusClick,
                             iconRes = R.drawable.cross_ic,
                             contentColor = Orange,

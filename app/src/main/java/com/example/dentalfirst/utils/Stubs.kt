@@ -1,5 +1,6 @@
 package com.example.dentalfirst.utils
 
+import com.example.dentalfirst.Bonus
 import com.example.dentalfirst.Customer
 import com.example.dentalfirst.OrderState
 import com.example.dentalfirst.R
@@ -13,5 +14,10 @@ val customerStub = Customer(
 )
 
 val orderStateStub = OrderState(
-    "12.02.2026", 4069, customerStub, 4, 1200000,
+    "12.02.2026",
+    4069,
+    customerStub,
+    4,
+    1200000,
+    userBonuses = Bonus(120000)
 )

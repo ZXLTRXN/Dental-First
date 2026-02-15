@@ -36,15 +36,11 @@ class OrderViewModel : ViewModel() {
 
     private fun addPromo(text: String) {
         val percentsDiscount = 10
-        orderState = orderState.copy(appliedPromo = Promo(text, percentsDiscount),
-            totalPrice = orderState.totalPrice * (100 - percentsDiscount) / 100
-        )
+        orderState = orderState.copy(appliedPromo = Promo(text, percentsDiscount))
     }
 
     private fun addBonus(amount: Int){
-        orderState = orderState.copy(bonus = Bonus(amount),
-            totalPrice = (orderState.totalPrice - amount * 100).coerceAtLeast(0)
-        )
+        orderState = orderState.copy(bonus = Bonus(amount * 100))
     }
 
     private fun dismissBottomSheet() {
@@ -65,7 +61,7 @@ class OrderViewModel : ViewModel() {
     private fun selectDeliveryItem(item: DeliveryItem) {
         orderState.deliveryItems.select(item) // рекомпозиций избыточных нет
         updateDatesSelectorVisibility()
-        if (item.type != DeliveryType.Courier && !bottomSheetShown) {
+        if (item.type != DeliveryType.Courier && !bottomSheetShown) { // fixme на getter
             orderState = orderState.copy(showDeliveryFeeBottomSheet = true)
             bottomSheetShown = true
         }
@@ -77,7 +73,7 @@ class OrderViewModel : ViewModel() {
                 orderState.deliveryAddress.destinationType == DestinationType.MOSCOW &&
                 orderState.deliveryItems.first { it.type == DeliveryType.Courier }.isSelected
                     .value
-        orderState = orderState.copy(showDatesSelector = isMoscowCourier)
+        orderState = orderState.copy(showDatesSelector = isMoscowCourier) // fixme на getter
     }
 
 

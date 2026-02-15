@@ -11,10 +11,10 @@ data class OrderState(
     val id: Long,
     val customer: Customer,
     val items: Int,
-    val totalPrice: Int,
+    val basePrice: Int,
     val appliedPromo: Promo = Promo.None,
 
-    val userBonuses: Bonus = Bonus(1200),
+    val userBonuses: Bonus = Bonus(0),
     val bonus: Bonus = Bonus(0),
 
     val selectedFulfillmentType: FulfillmentType = FulfillmentType.DELIVERY,
@@ -32,8 +32,13 @@ data class OrderState(
     val selectedCourierDateIdx: Int = 0,
     val showDatesSelector: Boolean = false,
     val showDeliveryFeeBottomSheet: Boolean = false,
-
-)
+) {
+    val totalPrice: Int
+        get() {
+        val discount = basePrice * appliedPromo.amount / 100
+        return (basePrice - discount - bonus.amount).coerceAtLeast(0)
+    }
+}
 
 data class Customer(
     val name: String,
@@ -59,7 +64,7 @@ data class Promo(
 
 @JvmInline
 value class Bonus(
-    val amountRub: Int
+    val amount: Int
 )
 
 enum class FulfillmentType(val stringRes: Int) {
