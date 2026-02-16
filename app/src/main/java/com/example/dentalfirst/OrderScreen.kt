@@ -4,9 +4,13 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
 import androidx.compose.foundation.layout.Box
@@ -25,7 +29,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -64,9 +73,11 @@ import com.example.dentalfirst.components.DeliveryBottomSheet
 import com.example.dentalfirst.components.FulfillmentTypeTabSelector
 import com.example.dentalfirst.components.IndividualPaymentTypeSelector
 import com.example.dentalfirst.components.InputBottomSheet
+import com.example.dentalfirst.components.LegalPaymentTypeSelector
 import com.example.dentalfirst.components.PaymentTypeSelector
 import com.example.dentalfirst.components.PrimaryButton
 import com.example.dentalfirst.components.ScreenHeader
+import com.example.dentalfirst.components.TertiaryButton
 import com.example.dentalfirst.components.TransportCompaniesSelector
 import com.example.dentalfirst.models.Bonus
 import com.example.dentalfirst.models.DeliveryItem
@@ -74,6 +85,7 @@ import com.example.dentalfirst.models.DestinationType
 import com.example.dentalfirst.models.FulfillmentAddress
 import com.example.dentalfirst.models.FulfillmentType
 import com.example.dentalfirst.models.IndividualPaymentType
+import com.example.dentalfirst.models.LegalPaymentType
 import com.example.dentalfirst.models.OrderItem
 import com.example.dentalfirst.models.OrderState
 import com.example.dentalfirst.models.PaymentType
@@ -105,8 +117,12 @@ fun OrderScreenStateful(
             when (intent) {
                 is OrderIntent.OpenAddressSelection -> onNavigateToAddress()
                 is OrderIntent.OpenMapSelection -> {
-                    onNavigateToMap(intent.lat, intent.long)
+                    onNavigateToMap(
+                        intent.lat,
+                        intent.long
+                    )
                 }
+
                 else -> viewModel.processIntent(intent)
             }
         },
@@ -948,7 +964,7 @@ fun PaymentDetails(
                 text = "Способы оплаты",
                 style = MaterialTheme.typography.bodyLarge
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
 
             AnimatedContent(selectedPaymentType) { targetType ->
                 when {
@@ -960,7 +976,95 @@ fun PaymentDetails(
                         )
                     }
 
-                    targetType == PaymentType.LEGAL -> {
+                    targetType == PaymentType.LEGAL -> { // fixme в отдельный
+                        Column() {
+                            var bank by remember { mutableStateOf("") }
+                            var bill by remember { mutableStateOf("") }
+                            var ooo by remember { mutableStateOf("") }
+                            var inn by remember { mutableStateOf("") }
+                            var kpp by remember { mutableStateOf("") }
+                            var corBill by remember { mutableStateOf("") }
+                            var bik by remember { mutableStateOf("") }
+
+                            var selectedLegalPaymentType by remember { mutableStateOf(LegalPaymentType.BILL) } // fixme
+                            LegalPaymentTypeSelector(
+                                selectedType = selectedLegalPaymentType,
+                                onSelect = { selectedLegalPaymentType = it }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "Реквизиты компании",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            TertiaryButton(
+                                "Автозаполнение через ИНН",
+                                onClick = {
+
+                                })
+                            Spacer(Modifier.height(8.dp))
+                            LegalTextField(
+                                value = bank,
+                                onValueChange = { bank = it },
+                                placeholder = "Банк",
+                                keyboardType = KeyboardType.Text,
+                                showTrailingIcon = true
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = bill,
+                                onValueChange = { bill = it },
+                                placeholder = "Расчетный счет",
+                                keyboardType = KeyboardType.Number,
+
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = ooo,
+                                onValueChange = { ooo = it },
+                                placeholder = "Название ООО",
+                                keyboardType = KeyboardType.Text,
+
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = inn,
+                                onValueChange = { inn = it },
+                                placeholder = "ИНН",
+                                keyboardType = KeyboardType.Number,
+
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = kpp,
+                                onValueChange = { kpp = it },
+                                placeholder = "КПП",
+                                keyboardType = KeyboardType.Number,
+
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = corBill,
+                                onValueChange = { corBill = it },
+                                placeholder = "Кор. счет",
+                                keyboardType = KeyboardType.Number,
+
+                            )
+                            Spacer(Modifier.height(4.dp))
+
+                            LegalTextField(
+                                value = bik,
+                                onValueChange = { bik = it },
+                                placeholder = "БИК",
+                                keyboardType = KeyboardType.Number,
+                            )
+
+                        }
 
                     }
                 }
@@ -978,6 +1082,142 @@ fun PaymentDetails(
 
         }
     }
+}
+
+//@Composable
+//fun LegalTextField(
+//    value: String,
+//    onValueChange: (String) -> Unit,
+//    placeholder: String,
+//    modifier: Modifier = Modifier,
+//    keyboardType: KeyboardType = KeyboardType.Text
+//) {
+//    BasicTextField(
+//        value = value,
+//        onValueChange = onValueChange,
+//        modifier = modifier.fillMaxWidth(),
+//        textStyle = MaterialTheme.typography.bodySmall.copy(
+//            fontSize = 16.sp,
+//            color = Color.Black
+//        ),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = keyboardType
+//        ),
+//        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+//        decorationBox = { innerTextField ->
+//            Box(
+//                modifier = Modifier
+//                    .background(
+//                        TooLightGrey,
+//                        shape = MaterialTheme.shapes.medium
+//                    )
+//                    .border(
+//                        width = 1.dp,
+//                        color = TooLightGrey,
+//                        shape = MaterialTheme.shapes.medium
+//                    )
+//                    .padding(16.dp),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                if (value.isEmpty()) {
+//                    Text(
+//                        text = placeholder,
+//                        style = MaterialTheme.typography.bodySmall.copy(
+//                            fontSize = 16.sp,
+//                            color = MiddleGrey
+//                        )
+//                    )
+//                }
+//                innerTextField()
+//            }
+//        }
+//    )
+//}
+
+// 1доставка указать вручную, переключить вкладку
+
+// 2доставка указатьна мапе
+
+// 3самовывоз показать на карте и вернуть доставку
+
+// 4доставка желаемый день доставки и пролистать в конец тыкнуть
+
+// 5доставка выбрать ТК и пролистать в конец тыкнуть
+
+// 6юр лицо
+
+// 7купон и бонусы и отменит
+
+// 8потыкать минус
+
+
+@Composable
+fun LegalTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    showTrailingIcon: Boolean = false
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodySmall.copy(
+            fontSize = 16.sp,
+            color = Color.Black
+        ),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        decorationBox = { innerTextField ->
+            Box(
+                modifier = Modifier
+                    .background(
+                        TooLightGrey,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = TooLightGrey,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .padding(16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 16.sp,
+                                    color = MiddleGrey
+                                )
+                            )
+                        }
+                        innerTextField()
+                    }
+
+                    if (showTrailingIcon) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = MiddleGrey,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -1001,27 +1241,39 @@ fun OrderItems(
                     text = "Состав заказа",
                     style = MaterialTheme.typography.titleSmall
                 )
+                val itemsString = if (orderState.itemsCount < 2) "${orderState.itemsCount} товар"
+                else "${orderState.itemsCount} товара"
                 Text(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MiddleGrey,
-                    text = "${orderState.itemsCount} товара"
+                    text = itemsString
                 )
             }
 
             Spacer(Modifier.height(12.dp))
-            val items = orderState.items
-            items.forEachIndexed { index, item ->
-                OrderItemCard(
-                    item = item,
-                    promo = orderState.appliedPromo,
-                    onMinus = { onMinus(item.id) },
-                    onPlus = { onPlus(item.id) },
-                    modifier = Modifier
-                )
-                if (index < items.size - 1) {
-                    Spacer(Modifier.height(12.dp))
+            AnimatedContent(
+                targetState = orderState.items,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+                },
+                label = "OrderItemsAnimation"
+            ) { targetItems ->
+                Column {
+                    targetItems.forEachIndexed { index, item ->
+                        OrderItemCard(
+                            item = item,
+                            promo = orderState.appliedPromo,
+                            onMinus = { onMinus(item.id) },
+                            onPlus = { onPlus(item.id) },
+                            modifier = Modifier
+                        )
+                        if (index < targetItems.size - 1) {
+                            Spacer(Modifier.height(12.dp))
+                        }
+                    }
                 }
             }
+
         }
     }
 }

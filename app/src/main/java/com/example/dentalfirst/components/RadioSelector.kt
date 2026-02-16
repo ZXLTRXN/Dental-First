@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dentalfirst.models.DeliveryItem
 import com.example.dentalfirst.models.IndividualPaymentType
+import com.example.dentalfirst.models.LegalPaymentType
 import com.example.dentalfirst.models.PaymentType
 import com.example.dentalfirst.models.select
 import com.example.dentalfirst.ui.theme.DarkGrey
@@ -185,6 +186,76 @@ fun IndividualPaymentTypeSelector(
 @Composable
 private fun IndividualPaymentOptionItem(
     type: IndividualPaymentType,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val containerColor by animateColorAsState(
+        targetValue = if (isSelected) Purple else SuperLightGrey,
+        label = "bg_anim"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else DarkGrey,
+        label = "content_color_anim"
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else TooLightGrey,
+        label = "border_color_anim"
+    )
+
+    OutlinedButton(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, color = borderColor),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
+        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(ImageVector.vectorResource(type.iconRes), contentDescription = null)
+
+            Text(
+                text = stringResource(type.stringRes),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+///  LEGAL PAYMENT TYPE the same fixme
+//// INDIVIDUAL PAYMENT TYPE
+@Composable
+fun LegalPaymentTypeSelector(
+    selectedType: LegalPaymentType,
+    onSelect: (LegalPaymentType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = remember { LegalPaymentType.entries }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        options.forEach { type ->
+            LegalPaymentOptionItem(
+                type = type,
+                isSelected = selectedType == type,
+                onClick = { onSelect(type) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun LegalPaymentOptionItem(
+    type: LegalPaymentType,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {

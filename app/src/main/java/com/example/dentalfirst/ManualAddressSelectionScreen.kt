@@ -1,5 +1,6 @@
 package com.example.dentalfirst
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,17 +8,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -59,6 +65,7 @@ fun ManualAddressSelectionScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
+        var city by remember { mutableStateOf("") }
         var streetHouse by remember { mutableStateOf("") }
         var flat by remember { mutableStateOf("") }
         var postal by remember { mutableStateOf("") }
@@ -83,6 +90,17 @@ fun ManualAddressSelectionScreen(
                 selectedDestination = selectedDestination,
                 onDestinationSelected = { selectedDestination = it })
             Spacer(modifier = Modifier.height(20.dp))
+            AnimatedVisibility(selectedDestination != DestinationType.MOSCOW) {
+                AddressTextField(
+                    value = city,
+                    onValueChange = { city = it },
+                    placeholder = "Город",
+                    keyboardType = KeyboardType.Text,
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
+                    showTrailingIcon = true
+                )
+            }
+
             AddressTextField(
                 value = streetHouse,
                 onValueChange = { streetHouse = it },
@@ -123,13 +141,66 @@ fun ManualAddressSelectionScreen(
     }
 }
 
+//@Composable
+//fun AddressTextField(
+//    value: String,
+//    onValueChange: (String) -> Unit,
+//    placeholder: String,
+//    modifier: Modifier = Modifier,
+//    keyboardType: KeyboardType = KeyboardType.Text
+//) {
+//    BasicTextField(
+//        value = value,
+//        onValueChange = onValueChange,
+//        modifier = modifier.fillMaxWidth(),
+//        textStyle = MaterialTheme.typography.bodySmall.copy(
+//            fontSize = 16.sp,
+//            color = Color.Black
+//        ),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = keyboardType
+//        ),
+//        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+//        decorationBox = { innerTextField ->
+//            Box(
+//                modifier = Modifier
+//                    .background(
+//                        SuperLightGrey,
+//                        shape = MaterialTheme.shapes.medium
+//                    )
+//                    .border(
+//                        width = 1.dp,
+//                        color = TooLightGrey,
+//                        shape = MaterialTheme.shapes.medium
+//                    )
+//                    .padding(16.dp),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                if (value.isEmpty()) {
+//                    Text(
+//                        text = placeholder,
+//                        style = MaterialTheme.typography.bodySmall.copy(
+//                            fontSize = 16.sp,
+//                            color = MiddleGrey
+//                        )
+//                    )
+//                }
+//                innerTextField()
+//            }
+//        }
+//    )
+//}
+
+
 @Composable
 fun AddressTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    showTrailingIcon: Boolean = false
 ) {
     BasicTextField(
         value = value,
@@ -153,22 +224,40 @@ fun AddressTextField(
                     )
                     .border(
                         width = 1.dp,
-                        color = TooLightGrey,
+                        color = TooLightGrey, // Убедитесь, что этот цвет определен
                         shape = MaterialTheme.shapes.medium
                     )
                     .padding(16.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                if (value.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 16.sp,
-                            color = MiddleGrey
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Основная часть с текстом
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 16.sp,
+                                    color = MiddleGrey
+                                )
+                            )
+                        }
+                        innerTextField()
+                    }
+
+                    // Иконка стрелочки
+                    if (showTrailingIcon) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = MiddleGrey,
+                            modifier = Modifier.size(24.dp)
                         )
-                    )
+                    }
                 }
-                innerTextField()
             }
         }
     )

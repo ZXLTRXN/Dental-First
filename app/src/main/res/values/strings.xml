@@ -9,12 +9,13 @@
 
     <string name="individual_card_payment">Картой при получении</string>
     <string name="individual_cash_payment">Наличными при получении</string>
+    <string name="legal_bill_payment">Через расчетный счет</string>
 
     <string name="delivery_params">Параметры доставки</string>
     <string name="transportation_selection">Способы доставки</string>
 
     <string name="delivery_moscow">Доставка по Москве</string>
-    <string name="delivery_close_moscow_region">Доставка по ближнему Подмосковью</string>
+    <string name="delivery_close_moscow_region">Доставка в Подмосковье</string>
     <string name="delivery_russia">Доставка по России</string>
     <string name="delivery_abroad">Доставка по зарубежью</string>
 

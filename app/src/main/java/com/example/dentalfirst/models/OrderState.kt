@@ -120,9 +120,9 @@ enum class PaymentType(val stringRes: Int) {
 }
 
 enum class IndividualPaymentType(
-    val stringRes: Int,
-    val iconRes: Int
-) {
+    override val stringRes: Int,
+    override val iconRes: Int
+): PaymentTypeInfo {
     CARD(
         R.string.individual_card_payment,
         R.drawable.card_ic
@@ -131,6 +131,21 @@ enum class IndividualPaymentType(
         R.string.individual_cash_payment,
         R.drawable.wallet_money_ic
     )
+}
+
+enum class LegalPaymentType(
+    override val stringRes: Int,
+    override val iconRes: Int
+):  PaymentTypeInfo {
+    BILL(
+        R.string.legal_bill_payment,
+        R.drawable.card_ic
+    )
+}
+
+interface PaymentTypeInfo {
+    val stringRes: Int
+    val iconRes: Int
 }
 
 data class LegalPaymentInfo(val inn: String) {
