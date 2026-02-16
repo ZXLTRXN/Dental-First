@@ -6,6 +6,7 @@ import com.yandex.mapkit.MapKitFactory
 class DentalApplication: Application() {
     override fun onCreate() {
         super.onCreate()
+        MapKitFactory.setLocale("ru_RU")
         MapKitFactory.setApiKey("")
     }
 }

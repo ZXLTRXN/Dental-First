@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -69,6 +70,7 @@ import com.example.dentalfirst.components.ScreenHeader
 import com.example.dentalfirst.components.TransportCompaniesSelector
 import com.example.dentalfirst.models.Bonus
 import com.example.dentalfirst.models.DeliveryItem
+import com.example.dentalfirst.models.DestinationType
 import com.example.dentalfirst.models.FulfillmentAddress
 import com.example.dentalfirst.models.FulfillmentType
 import com.example.dentalfirst.models.IndividualPaymentType
@@ -92,7 +94,7 @@ import com.example.dentalfirst.utils.toPriceString
 @Composable
 fun OrderScreenStateful(
     onNavigateToAddress: () -> Unit,
-    onNavigateToMap: () -> Unit,
+    onNavigateToMap: (Double, Double) -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: OrderViewModel = viewModel(),
@@ -102,7 +104,9 @@ fun OrderScreenStateful(
         processIntent = { intent ->
             when (intent) {
                 is OrderIntent.OpenAddressSelection -> onNavigateToAddress()
-                is OrderIntent.OpenMapSelection -> onNavigateToMap()
+                is OrderIntent.OpenMapSelection -> {
+                    onNavigateToMap(intent.lat, intent.long)
+                }
                 else -> viewModel.processIntent(intent)
             }
         },
@@ -120,7 +124,8 @@ fun OrderScreen(
 ) {
     DeliveryBottomSheet(
         show = orderState.showDeliveryFeeBottomSheet,
-        addAmountToFree = 35000, // fixme цена
+        addAmountToFree = 1000000 - orderState.totalPriceWithoutDelivery, // fixme рандомые 10к
+        // поставил
         onDismiss = {
             processIntent(OrderIntent.DeliveryFeeDismissedBottomSheet)
         })
@@ -221,7 +226,14 @@ fun OrderScreen(
             if (targetType == FulfillmentType.DELIVERY) {
                 if (orderState.deliveryAddress == FulfillmentAddress.None) {
                     DeliverySelection(
-                        onMapClick = { processIntent(OrderIntent.OpenMapSelection) },
+                        onMapClick = {
+                            processIntent(
+                                OrderIntent.OpenMapSelection(
+                                    55.751249,
+                                    37.618430,
+                                )
+                            )
+                        },
                         onManualClick = { processIntent(OrderIntent.OpenAddressSelection) },
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
@@ -247,7 +259,16 @@ fun OrderScreen(
                 }
             } else {
                 PickupDetails(
-                    onMapClick = { processIntent(OrderIntent.OpenMapSelection) }, // fixme
+                    pickupAddress = orderState.pickupAddress,
+                    onMapClick = {
+                        processIntent(
+                            OrderIntent.OpenMapSelection(
+                                orderState
+                                    .pickupAddress.latitude,
+                                orderState.pickupAddress.longitude
+                            )
+                        )
+                    },
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
@@ -280,6 +301,7 @@ fun OrderScreen(
         TotalDetails(
             price = animatedPrice.toInt(),
             deliveryPrice = orderState.deliveryPrice,
+            deliveryPriceCounted = orderState.deliveryPriceCounted,
             isButtonEnabled = orderState.paymentAvailable,
             onClick = {}, // fixme
             modifier = Modifier
@@ -458,6 +480,7 @@ fun CustomerDetails(
 fun TotalDetails(
     price: Int,
     deliveryPrice: Int,
+    deliveryPriceCounted: Boolean,
     isButtonEnabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -478,7 +501,7 @@ fun TotalDetails(
                     color = MiddleGrey
                 )
                 Text(
-                    if (deliveryPrice == 0) "Не рассчитано" else deliveryPrice.toPriceString()
+                    if (!deliveryPriceCounted) "Не рассчитано" else deliveryPrice.toPriceString()
                             + " ₽",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     color = LightGrey
@@ -637,7 +660,7 @@ fun DeliveryDetails(
 
             Spacer(Modifier.height(16.dp))
             Text(
-                "${orderState.deliveryAddress.country} ${orderState.deliveryAddress.city}",
+                "${orderState.deliveryAddress.country}, ${orderState.deliveryAddress.city}",
                 style =
                     MaterialTheme.typography.bodyLarge,
                 color = MiddleGrey
@@ -788,7 +811,8 @@ fun DeliveryDescriptionMsk(
 }
 
 @Composable
-fun PickupDetails( // fixme
+fun PickupDetails(
+    pickupAddress: FulfillmentAddress,
     onMapClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -801,6 +825,40 @@ fun PickupDetails( // fixme
                 text = "Адрес офиса Dental First",
                 style = MaterialTheme.typography.titleSmall
             )
+            Spacer(Modifier.height(12.dp))
+            Surface(
+                color = Color.White,
+                border = BorderStroke(
+                    1.dp,
+                    TooLightGrey
+                ),
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.map_point_ic),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "${pickupAddress.country}, ${pickupAddress.city}",
+                            style =
+                                MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            pickupAddress.address,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MiddleGrey
+                        )
+                    }
+                }
+
+            }
             Spacer(Modifier.height(12.dp))
             MapButton(
                 onMapClick,
@@ -818,7 +876,48 @@ fun PickupDetails( // fixme
                     contentDescription = null
                 )
             }
+            Spacer(modifier = Modifier.height(12.dp))
+            PickupDescription()
         }
+    }
+}
+
+@Composable
+fun PickupDescription(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.pickup_moscow_detailed),
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 14.sp,
+                lineHeight = 21.sp
+            ),
+            color = DarkGrey,
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.pickup_moscow_detailed_1_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.pickup_moscow_detailed_2_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.pickup_moscow_detailed_3_bul),
+            modifier = Modifier
+        )
+        Spacer(Modifier.height(4.dp))
+        BulletText(
+            text = stringResource(R.string.pickup_moscow_detailed_4_bul),
+            modifier = Modifier
+        )
     }
 }
 
@@ -1053,11 +1152,16 @@ fun CountSelector(
 @Composable
 fun ItemPreview() {
     DentalFirstTheme {
-        OrderItems(
-            orderStateStub,
-            {},
-            {},
-            Modifier.padding(horizontal = 20.dp)
+        PickupDetails(
+            pickupAddress = FulfillmentAddress(
+                country = "Россия",
+                city = "Москва",
+                address = "проезд Донской 5-й, д. 15, корп./ст. 5, кв./оф. 1379",
+                destinationType = DestinationType.MOSCOW,
+                latitude = 55.7069,
+                longitude = 37.5984
+            ),
+            onMapClick = {}
         )
     }
 }

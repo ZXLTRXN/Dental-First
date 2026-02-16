@@ -109,14 +109,18 @@ data class FulfillmentAddress(
     val country: String = "",
     val city: String = "",
     val address: String = "",
-    val destinationType: DestinationType = DestinationType.MOSCOW
+    val destinationType: DestinationType = DestinationType.MOSCOW,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 ): Parcelable {
 
     constructor(parcel: Parcel) : this(
         country = parcel.readString() ?: "",
         city = parcel.readString() ?: "",
         address = parcel.readString() ?: "",
-        destinationType = DestinationType.fromOrdinal(parcel.readInt())
+        destinationType = DestinationType.fromOrdinal(parcel.readInt()),
+        latitude = parcel.readDouble(),
+        longitude = parcel.readDouble()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -124,6 +128,8 @@ data class FulfillmentAddress(
         parcel.writeString(city)
         parcel.writeString(address)
         parcel.writeInt(destinationType.ordinal)
+        parcel.writeDouble(latitude)
+        parcel.writeDouble(longitude)
     }
 
     override fun describeContents(): Int = 0
@@ -141,6 +147,14 @@ data class FulfillmentAddress(
             city = "Москва",
             address = "ул. Большая Ордынка 1, кв. 148, 605068",
             destinationType = DestinationType.MOSCOW
+        )
+        val Company = FulfillmentAddress(
+            country = "Россия",
+            city = "Москва",
+            address = "проезд Донской 5-й, д. 15, корп./ст. 5, кв./оф. 1379",
+            destinationType = DestinationType.MOSCOW,
+            latitude = 55.7061,
+            longitude = 37.5988
         )
     }
 }

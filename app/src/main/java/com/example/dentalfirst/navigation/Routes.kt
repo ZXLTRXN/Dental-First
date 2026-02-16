@@ -11,4 +11,7 @@ object AddressPickerRoute
 
 
 @Serializable
-object MapRoute
+data class MapRoute(
+    val initialLat: Double,
+    val initialLng: Double
+)

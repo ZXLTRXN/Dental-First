@@ -6,6 +6,8 @@ import com.example.dentalfirst.models.OrderItem
 import com.example.dentalfirst.models.OrderState
 import com.example.dentalfirst.models.Promo
 import com.example.dentalfirst.R
+import com.example.dentalfirst.models.DestinationType
+import com.example.dentalfirst.models.FulfillmentAddress
 
 
 val customerStub = Customer(

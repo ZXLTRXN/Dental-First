@@ -3,7 +3,6 @@ package com.example.dentalfirst
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.dentalfirst.models.Bonus
 import com.example.dentalfirst.models.DeliveryItem
@@ -15,20 +14,12 @@ import com.example.dentalfirst.models.OrderState
 import com.example.dentalfirst.models.Promo
 import com.example.dentalfirst.models.select
 import com.example.dentalfirst.utils.orderStateStub
-import kotlinx.coroutines.flow.StateFlow
 
 class OrderViewModel(
-    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     var orderState: OrderState by mutableStateOf(orderStateStub)
         private set
-
-    val addressState: StateFlow<FulfillmentAddress?> =
-        savedStateHandle.getStateFlow(
-            "selected_address",
-            null
-        )
 
     var bottomSheetShown: Boolean = false
 
@@ -36,6 +27,7 @@ class OrderViewModel(
         orderState = orderState.copy(
             deliveryAddress = address,
         )
+        updateDatesSelectorVisibility()
     }
 
     fun processIntent(intent: OrderIntent) {
@@ -50,8 +42,10 @@ class OrderViewModel(
             OrderIntent.RemovePromo -> removePromo()
             is OrderIntent.AddItem -> addOrderItem(intent.id)
             is OrderIntent.RemoveItem -> removeOrderItem(intent.id)
+
             OrderIntent.OpenAddressSelection -> {}
-            OrderIntent.OpenMapSelection -> {}
+            is OrderIntent.OpenMapSelection -> {}
+
             is OrderIntent.UpdateAddress -> updateAddressInState(intent.address)
         }
     }
@@ -152,7 +146,11 @@ sealed interface OrderIntent {
     data class RemoveItem(val id: String) : OrderIntent
 
     object OpenAddressSelection : OrderIntent
-    object OpenMapSelection : OrderIntent
+    data class OpenMapSelection(
+        val lat: Double ,
+        val long: Double
+    ) : OrderIntent
+
     data class UpdateAddress(val address: FulfillmentAddress) : OrderIntent
 
 }

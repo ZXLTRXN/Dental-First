@@ -26,10 +26,16 @@
     <string name="delivery_pek">ПЭК</string>
 
     <string name="delivery_moscow_detailed">Доставка по Москве:</string>
-    <string name="delivery_moscow_detailed_1_bul">При заказе товара на сумму до 2 000 ₽ - доставка не осуществляется.</string>
-    <string name="delivery_moscow_detailed_2_bul">При заказе товара на сумму от 2 000 ₽ до 10 000 ₽ - стоимость доставки 1 000 ₽, на следующий день.</string>
-    <string name="delivery_moscow_detailed_3_bul">При заказе товара на сумму от 10 000 ₽ доставка осуществляется бесплатно по всей Москве, на следующий рабочий день.</string>
+    <string name="delivery_moscow_detailed_1_bul">При заказе товара на сумму до 2 000 ₽ - доставка\n\u00A0\u00A0\u00A0\u00A0не осуществляется.</string>
+    <string name="delivery_moscow_detailed_2_bul">При заказе товара на сумму от 2 000 ₽ до 10 000 ₽ \n\u00A0\u00A0\u00A0\u00A0- стоимость доставки 1 000 ₽, на следующий день.</string>
+    <string name="delivery_moscow_detailed_3_bul">При заказе товара на сумму от 10 000 ₽\n\u00A0\u00A0\u00A0\u00A0доставка осуществляется бесплатно по всей Москве,\n\u00A0\u00A0\u00A0\u00A0на следующий рабочий день.</string>
     <string name="delivery_moscow_detailed_4">* Уточните районы и административные центры, города областного подчинения, находящиеся в этой зоне, у нашего менеджера.</string>
+
+    <string name="pickup_moscow_detailed">Расчёт стоимости самовывоза со склада Dental First:</string>
+    <string name="pickup_moscow_detailed_1_bul">Самовывоз осуществляется только с нашего склада</string>
+    <string name="pickup_moscow_detailed_2_bul">При заказе до 20 000 ₽ - стоимость самовывоза\n\u00A0\u00A0\u00A0\u00A0составляет 1 750 ₽</string>
+    <string name="pickup_moscow_detailed_3_bul">При заказе от 20 000 ₽ - самовывоз осуществляется\n\u00A0\u00A0\u00A0\u00A0бесплатно</string>
+    <string name="pickup_moscow_detailed_4_bul">При заказе до 3 000 ₽, доступен только самовывоз\n\u00A0\u00A0\u00A0\u00A0стоимостью 1 750 ₽</string>
 
 
 

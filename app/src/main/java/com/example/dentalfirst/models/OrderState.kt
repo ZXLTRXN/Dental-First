@@ -17,8 +17,7 @@ data class OrderState(
 
     val selectedFulfillmentType: FulfillmentType = FulfillmentType.DELIVERY,
     val deliveryAddress: FulfillmentAddress = FulfillmentAddress.None,
-    val pickupAddress: FulfillmentAddress = FulfillmentAddress.None,
-    val deliveryPrice: Int = 0,
+    val pickupAddress: FulfillmentAddress = FulfillmentAddress.Company,
 
     val selectedPaymentType: PaymentType = PaymentType.INDIVIDUAL,
     val selectedIndividualPaymentType: IndividualPaymentType = IndividualPaymentType.CARD,
@@ -35,10 +34,45 @@ data class OrderState(
             return items.sumOf { it.basePrice }
         }
 
+    val discountedPrice: Int
+        get() = items.sumOf { it.getDiscountedPrice(appliedPromo) }
+
+    val selectedDeliveryType: DeliveryType
+        get() = deliveryItems.first { it.isSelected.value }.type
+
+
+    val deliveryPrice: Int
+        get() {
+            return when (selectedFulfillmentType) {
+                FulfillmentType.DELIVERY -> {
+                    if (selectedDeliveryType == DeliveryType.Courier) {
+                        100000
+                    } else {
+                        150000
+                    }
+                }
+
+                FulfillmentType.PICKUP -> {
+                    175000
+                }
+            }
+        }
+
+
+    val deliveryPriceCounted: Boolean
+        get() =
+            deliveryAddress != FulfillmentAddress.None ||
+                    pickupAddress != FulfillmentAddress.None
+
+
+    val totalPriceWithoutDelivery: Int
+        get() {
+            return (discountedPrice - bonus.amount).coerceAtLeast(0)
+        }
+
     val totalPrice: Int
         get() {
-            val discountedPrice = items.sumOf { it.getDiscountedPrice(appliedPromo) }
-            return (discountedPrice - bonus.amount).coerceAtLeast(0)
+            return (discountedPrice + deliveryPrice - bonus.amount).coerceAtLeast(0)
         }
 
     val itemsCount: Int

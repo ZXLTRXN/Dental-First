@@ -263,34 +263,6 @@ fun InputBottomSheet(
                             .weight(1f)
                             .focusRequester(focusRequester)
                     )
-//                    TextField(
-//                        value = text,
-//                        onValueChange = onValueChange,
-//                        keyboardOptions = KeyboardOptions(
-//                            keyboardType = keyboardType
-//                        ),
-//                        modifier = Modifier.weight(1f),
-//                        colors = TextFieldDefaults.colors(
-//                            focusedContainerColor = Color.White,
-//                            unfocusedContainerColor = Color.White,
-//                            disabledContainerColor = Color.White,
-//                            focusedIndicatorColor = Color.Transparent,
-//                            unfocusedIndicatorColor = Color.Transparent,
-//                            disabledIndicatorColor = Color.Transparent
-//                        ),
-//                        textStyle = MaterialTheme.typography.bodySmall.copy(
-//                            fontSize = 16.sp
-//                        ),
-//                        placeholder = {
-//                            Text(
-//                                placeholder,
-//                                style = MaterialTheme.typography.bodySmall.copy(
-//                                    fontSize = 16.sp
-//                                ),
-//                                color = LightGrey
-//                            )
-//                        }
-//                    )
                     TextButton(onClick = onAccept) {
                         Text(
                             "Применить",

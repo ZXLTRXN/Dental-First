@@ -1,6 +1,10 @@
 package com.example.dentalfirst.navigation
 
 import MapAddressSelectionScreen
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -12,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.dentalfirst.ManualAddressSelectionScreen
 import com.example.dentalfirst.OrderIntent
 import com.example.dentalfirst.OrderScreenStateful
@@ -27,7 +32,11 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = OrderRoute
+        startDestination = OrderRoute,
+        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
     ) {
         composable<OrderRoute> { backStackEntry ->
             val viewModel: OrderViewModel = viewModel()
@@ -35,8 +44,9 @@ fun AppNavigation(
                 onNavigateToAddress = {
                     navController.navigate(AddressPickerRoute)
                 },
-                onNavigateToMap = {
-                    navController.navigate(MapRoute)
+                onNavigateToMap = { lat, long ->
+                    navController.navigate(MapRoute(initialLat = lat,
+                        initialLng = long))
                 },
                 viewModel = viewModel,
                 modifier = modifier,
@@ -78,7 +88,8 @@ fun AppNavigation(
         }
 
         // Экран выбора адреса
-        composable<MapRoute> {
+        composable<MapRoute> { backStackEntry ->
+            val mapArgs: MapRoute = backStackEntry.toRoute<MapRoute>()
             MapAddressSelectionScreen(
                 onAddressSelected = { address ->
                     navController.previousBackStackEntry
@@ -93,7 +104,12 @@ fun AppNavigation(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                modifier = modifier.padding(innerPadding)
+                onSearch = {
+                    navController.popBackStack()
+                },
+                innerPadding = innerPadding,
+                lat = mapArgs.initialLat,
+                long = mapArgs.initialLng
             )
         }
     }
